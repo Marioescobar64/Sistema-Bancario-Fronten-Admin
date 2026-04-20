@@ -21,6 +21,7 @@
     "react-router-dom": "^7.13.2",
     "tailwindcss": "^4.2.2",
     "tailwindscss": "^0.3.0",
+    "vite-plugin-svgr": "^5.2.0",
     "zustand": "^5.0.12"
   },
   "devDependencies": {

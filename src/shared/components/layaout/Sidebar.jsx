@@ -1,16 +1,24 @@
 import { useState } from "react";
+import bankIcon from '../../../assets/icons/dollar-sign.svg';
+import cardIcon from '../../../assets/icons/credit-card.svg';
+import sendIcon from '../../../assets/icons/send.svg';
+import chartIcon from '../../../assets/icons/bar-chart.svg';
+import userIcon from '../../../assets/icons/user.svg';
+import fileIcon from '../../../assets/icons/file.svg';
+import alertIcon from '../../../assets/icons/alert-triangle.svg';
+import lockIcon from '../../../assets/icons/lock.svg';
 
 export const Sidebar = ({ darkMode = false }) => {
   const [active, setActive] = useState("Cuentas");
 
   const items = [
-    { label: "Cuentas", icon: "🏦" },
-    { label: "Tarjetas", icon: "💳" },
-    { label: "Transferencias", icon: "💸" },
-    { label: "Préstamos", icon: "📊" },
-    { label: "Usuarios", icon: "👤" },
-    { label: "Registros de Auditoría", icon: "🧾" },
-    { label: "Movimientos Sospechosos", icon: "🚨" },
+    { label: "Cuentas", icon: bankIcon },
+    { label: "Tarjetas", icon: cardIcon },
+    { label: "Transferencias", icon: sendIcon },
+    { label: "Préstamos", icon: chartIcon },
+    { label: "Usuarios", icon: userIcon },
+    { label: "Registros de Auditoría", icon: fileIcon },
+    { label: "Movimientos Sospechosos", icon: alertIcon },
   ];
 
   return (
@@ -69,8 +77,16 @@ export const Sidebar = ({ darkMode = false }) => {
                     : "3px solid transparent",
                 }}
               >
-                {/* Icon */}
-                <span className="text-lg">{item.icon}</span>
+                {/* Icon with dynamic color using filter */}
+                <img
+                  src={item.icon}
+                  className="w-5 h-5 opacity-80"
+                  style={{
+                    filter: darkMode
+                      ? "invert(1) sepia(1) saturate(5) hue-rotate(180deg)" // Change to white on dark mode
+                      : "none",
+                  }}
+                />
 
                 {/* Label */}
                 <span className="text-sm font-medium">
@@ -90,24 +106,28 @@ export const Sidebar = ({ darkMode = false }) => {
       {/* Footer info */}
       <div className="mt-auto flex justify-center pb-4">
         <div
-            className="px-3 py-1 rounded-full text-xs font-medium transition-all duration-300"
-            style={{
+          className="px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 flex items-center"
+          style={{
             backgroundColor: darkMode
-                ? "rgba(59, 130, 246, 0.15)"
-                : "rgba(37, 99, 235, 0.10)",
-            color: darkMode
-                ? "#93c5fd"
-                : "var(--color-primary)",
+              ? "rgba(59, 130, 246, 0.15)"
+              : "rgba(37, 99, 235, 0.10)",
+            color: darkMode ? "#93c5fd" : "var(--color-primary)",
             border: `1px solid ${
-                darkMode
+              darkMode
                 ? "rgba(59, 130, 246, 0.3)"
                 : "rgba(37, 99, 235, 0.2)"
             }`,
-            }}
+          }}
         >
-            🔒 Sistema bancario seguro
+          {/* Imagen a la izquierda del texto */}
+          <img
+            src={lockIcon}
+            alt="Lock icon"
+            className="w-5 h-5 mr-2"
+          />
+          <span>Sistema bancario seguro</span>
         </div>
-    </div>
+      </div>
     </aside>
   );
 };

@@ -1,5 +1,8 @@
 import logoLight from "../../../assets/img/veraff-light.png";
 import logoDark from "../../../assets/img/veraff-dark.png";
+import Sun from "../../../assets/icons/sun.svg";
+import Moon from "../../../assets/icons/moon.svg";
+import Bell from "../../../assets/icons/bell.svg";
 
 export const Navbar = ({ darkMode, setDarkMode }) => {
   return (
@@ -9,7 +12,7 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
         ? 'bg-[var(--color-dark-background)]/80 border-[var(--color-dark-border)]' 
         : 'bg-white/80 border-[var(--color-border)]'}`}
     >
-      {/* 🏦 BRAND SECTION */}
+      {/* BRAND SECTION */}
       <div className="flex items-center gap-4">
         <img
           src={darkMode ? logoDark : logoLight}
@@ -27,7 +30,7 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
         </div>
       </div>
 
-      {/* ⚡ CONTROLES Y PERFIL */}
+      {/* CONTROLES Y PERFIL */}
       <div className="flex items-center gap-3 sm:gap-6">
         
         {/* Toggle Dark Mode (Estilo Minimalista) */}
@@ -38,12 +41,20 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
               ? 'bg-slate-800 border-slate-700 text-yellow-400' 
               : 'bg-slate-50 border-slate-200 text-slate-600'}`}
         >
-          {darkMode ? '☀️' : '🌙'}
+          {darkMode ? (
+            <img src={Sun} className="w-5 h-5 invert dark:invert-0" />
+          ) : (
+            <img src={Moon} className="w-5 h-5" />
+          )}
         </button>
 
         {/* Notificaciones */}
         <button className="relative p-2.5 text-xl opacity-70 hover:opacity-100 transition-opacity">
-          🔔
+          {darkMode ? (
+            <img src={Bell} className="w-5 h-5 invert dark:invert-0" />
+          ) : (
+            <img src={Bell} className="w-5 h-5" />
+          )}
           <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
         </button>
 
@@ -55,10 +66,6 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
           <div className="text-right hidden md:block">
             <p className={`text-xs font-bold leading-none ${darkMode ? 'text-white' : 'text-[var(--color-text-primary)]'}`}>
               Administrador
-            </p>
-            <p className="text-[10px] text-green-500 font-semibold mt-1 flex items-center justify-end gap-1">
-              <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-              Online
             </p>
           </div>
           
