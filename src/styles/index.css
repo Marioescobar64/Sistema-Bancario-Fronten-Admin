@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+/* Variables de colores para modo oscuro */
+:root {
+  --color-background: #F4F7FB;
+  --color-surface: #FFFFFF;
+  --color-text-primary: #0A2540;
+  --color-text-secondary: #5D6D7E;
+  --color-primary: #1F4E79;
+  --color-secondary: #5DADE2;
+  --color-border: #D6EAF8;
+  --color-success: #27AE60;
+  --color-error: #E74C3C;
+
+  /* Modo oscuro */
+  --color-dark-background: #0B1C2C;
+  --color-dark-surface: #112B3C;
+  --color-dark-text-primary: #EAF2F8;
+  --color-dark-text-secondary: #A9CCE3;
+  --color-dark-primary: #5DADE2;
+  --color-dark-secondary: #85C1E9;
+  --color-dark-border: #1B4F72;
+  --color-dark-success: #2ECC71;
+  --color-dark-error: #EC7063;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.15s ease-out;
+}
