@@ -19,9 +19,9 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
         
         <div className="hidden sm:block border-l pl-4 border-slate-300 dark:border-slate-700">
           <h1 className={`font-bold text-lg tracking-tight leading-none ${darkMode ? 'text-white' : 'text-[var(--color-text-primary)]'}`}>
-            Kinal Bank
+            Veraff Bank
           </h1>
-          <p className="text-[10px] uppercase tracking-[0.15em] opacity-60 font-medium mt-1">
+          <p className={`text-[10px] uppercase tracking-[0.15em] opacity-60 font-medium mt-1 ${darkMode ? 'text-white' : 'text-[var(--color-text-primary)]'}`}>
             Banca Digital
           </p>
         </div>
