@@ -3,6 +3,9 @@ import { Sidebar } from "./Sidebar";
 import { useState, useEffect } from "react";
 import bgImage from "../../../assets/img/background.png";
 
+// Vista Cuentas
+import { Accounts } from "../../../features/accounts/components/accounts";
+
 export const DashBoardContainer = () => {
   const [darkMode, setDarkMode] = useState(false);
 
@@ -14,23 +17,8 @@ export const DashBoardContainer = () => {
         <Sidebar darkMode={darkMode} />
 
         <main className="flex-1 p-8 overflow-y-auto">
-          {/* Card de Contenido Principal */}
-          <div className={`min-h-full rounded-3xl p-8 border transition-all duration-300 shadow-sm
-            ${darkMode 
-              ? 'bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]' 
-              : 'bg-[var(--color-surface)] border-[var(--color-border)]'}`}>
-            
-            <header className="mb-6">
-               <h2 className={`text-2xl font-semibold ${darkMode ? 'text-white' : 'text-[var(--color-text-primary)]'}`}>
-                 Resumen de Cuentas
-               </h2>
-               <p className="text-[var(--color-text-secondary)] text-sm">Bienvenido de nuevo, Administrador.</p>
-            </header>
-
-            <div className="border-2 border-dashed border-[var(--color-border)] rounded-2xl h-64 flex items-center justify-center text-gray-400">
-               Contenido del Dashboard
-            </div>
-          </div>
+          <Accounts darkMode={darkMode} /> 
+          
         </main>
       </div>
     </div>
