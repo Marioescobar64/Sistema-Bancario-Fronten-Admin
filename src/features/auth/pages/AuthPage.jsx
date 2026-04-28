@@ -99,10 +99,7 @@ export const AuthPage = () => {
         {isForgot ? (
           <ForgotPasswordForm onSwitch={() => setIsForgot(false)} />
         ) : (
-          <LoginForm
-            darkMode={darkMode}
-            onForgot={() => setIsForgot(true)}
-          />
+          <LoginForm onForgot={() => setIsForgot(true)} />
         )}
       </div>
     </div>

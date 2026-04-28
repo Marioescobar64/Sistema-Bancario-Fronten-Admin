@@ -1,10 +1,7 @@
 import { Navbar } from "./Navbar";
 import { Sidebar } from "./Sidebar";
-import { useState, useEffect } from "react";
-import bgImage from "../../../assets/img/background.png";
-
-// Vista Cuentas
-import { Accounts } from "../../../features/accounts/components/accounts";
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
 
 export const DashBoardContainer = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -17,8 +14,7 @@ export const DashBoardContainer = () => {
         <Sidebar darkMode={darkMode} />
 
         <main className="flex-1 p-8 overflow-y-auto">
-          <Accounts darkMode={darkMode} /> 
-          
+          <Outlet />
         </main>
       </div>
     </div>

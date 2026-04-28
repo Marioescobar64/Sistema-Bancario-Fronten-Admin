@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import bankIcon from '../../../assets/icons/dollar-sign.svg';
 import cardIcon from '../../../assets/icons/credit-card.svg';
 import sendIcon from '../../../assets/icons/send.svg';
@@ -9,21 +10,21 @@ import alertIcon from '../../../assets/icons/alert-triangle.svg';
 import lockIcon from '../../../assets/icons/lock.svg';
 
 export const Sidebar = ({ darkMode = false }) => {
-  const [active, setActive] = useState("Cuentas");
+  const location = useLocation();
 
   const items = [
-    { label: "Cuentas", icon: bankIcon },
-    { label: "Tarjetas", icon: cardIcon },
-    { label: "Transferencias", icon: sendIcon },
-    { label: "Préstamos", icon: chartIcon },
-    { label: "Usuarios", icon: userIcon },
-    { label: "Registros de Auditoría", icon: fileIcon },
-    { label: "Movimientos Sospechosos", icon: alertIcon },
+    { label: "Cuentas", to: "/dashboard/accounts", icon: bankIcon },
+    { label: "Tarjetas", to: "/dashboard/cards", icon: cardIcon },
+    { label: "Transferencias", to: "/dashboard/transfers", icon: sendIcon },
+    { label: "Préstamos", to: "/dashboard/loans", icon: chartIcon },
+    { label: "Usuarios", to: "/dashboard/users", icon: userIcon },
+    { label: "Registros de Auditoría", to: "/dashboard/audit-logs", icon: fileIcon },
+    { label: "Movimientos Sospechosos", to: "/dashboard/suspicious-movements", icon: alertIcon },
   ];
 
   return (
     <aside
-      className="w-64 min-h-[calc(100vh-4rem)] p-4 transition-colors duration-500"
+      className="w-64 min-h-[calc(100vh-5rem)] p-4 transition-colors duration-500 overflow-y-auto"
       style={{
         backgroundColor: darkMode
           ? "var(--color-dark-surface)"
@@ -50,12 +51,12 @@ export const Sidebar = ({ darkMode = false }) => {
       {/* Items */}
       <ul className="space-y-2">
         {items.map((item) => {
-          const isActive = active === item.label;
+          const isActive = location.pathname === item.to;
 
           return (
             <li key={item.label}>
-              <button
-                onClick={() => setActive(item.label)}
+              <Link
+                to={item.to}
                 className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-left transition-all duration-300 transform hover:scale-[1.02]"
                 style={{
                   backgroundColor: isActive
@@ -81,9 +82,10 @@ export const Sidebar = ({ darkMode = false }) => {
                 <img
                   src={item.icon}
                   className="w-5 h-5 opacity-80"
+                  alt={item.label}
                   style={{
                     filter: darkMode
-                      ? "invert(1) sepia(1) saturate(5) hue-rotate(180deg)" // Change to white on dark mode
+                      ? "invert(1) sepia(1) saturate(5) hue-rotate(180deg)"
                       : "none",
                   }}
                 />
@@ -97,14 +99,14 @@ export const Sidebar = ({ darkMode = false }) => {
                 {isActive && (
                   <span className="ml-auto w-2 h-2 rounded-full bg-blue-500" />
                 )}
-              </button>
+              </Link>
             </li>
           );
         })}
       </ul>
 
       {/* Footer info */}
-      <div className="mt-auto flex justify-center pb-4">
+      <div className="mt-auto flex justify-center pb-4 pt-4">
         <div
           className="px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 flex items-center"
           style={{

@@ -10,11 +10,28 @@ const axiosAuth = axios.create({
     }
 });
 
+const axiosAdmin = axios.create({
+    baseURL: import.meta.env.VITE_ADMIN_RUL,
+    timeout: 80000,
+    headers:{
+        "Content-Type": "Application/json",
+    }
+});
+
 axiosAuth.interceptors.request.use( (config)=>{
     config._axiosClient = "auth";
     const token = useAuthStore.getState().token;
     if(token){
-        config.headers.Authorization = `Bearer.${token}`;
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+} );
+
+axiosAdmin.interceptors.request.use( (config)=>{
+    config._axiosClient = "admin";
+    const token = useAuthStore.getState().token;
+    if(token){
+        config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
 } );
