@@ -1,126 +1,443 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+import {
+  getAccounts,
+  getUsers,
+  createAccount,
+  updateAccount,
+  changeAccountStatus
+} from '../../../shared/api/banking';
 
-const AccountCard = ({ darkMode, id, type, balance, isActive, owner }) => {
-  const isDark = darkMode;
-  
+import { CreateAccountModal } from './CreateAccountModal';
+import { AccountDetailModal } from './AccountDetailModal';
+
+export const Accounts = () => {
+
+  const [accounts, setAccounts] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    total: 0
+  });
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState(null);
+
+  useEffect(() => {
+    loadAccounts();
+    loadUsers();
+  }, [pagination.currentPage]);
+
+  const loadAccounts = async () => {
+
+    setLoading(true);
+
+    try {
+
+      const response = await getAccounts(
+        pagination.currentPage,
+        10
+      );
+
+      console.log('ACCOUNTS RESPONSE:', response);
+
+      setAccounts(response?.data || []);
+
+      setPagination({
+        currentPage: response?.pagination?.currentPage || 1,
+        totalPages: response?.pagination?.totalPages || 1,
+        total: response?.pagination?.totalRecords || 0
+      });
+
+    } catch (error) {
+
+      toast.error('Error al cargar cuentas');
+      console.error(error);
+
+      setAccounts([]);
+
+    } finally {
+
+      setLoading(false);
+
+    }
+  };
+
+  const loadUsers = async () => {
+
+    try {
+
+      const response = await getUsers(1, 100);
+
+      setUsers(response?.data || []);
+
+    } catch (error) {
+
+      console.error('Error al cargar usuarios:', error);
+
+      setUsers([]);
+
+    }
+  };
+
+  const handleCreateAccount = async (accountData) => {
+
+    try {
+
+      await createAccount(accountData);
+
+      toast.success('Cuenta creada exitosamente');
+
+      setShowCreateModal(false);
+
+      await loadAccounts();
+
+    } catch (error) {
+
+      toast.error(
+        error.response?.data?.message ||
+        'Error al crear cuenta'
+      );
+    }
+  };
+
+  const handleUpdateAccount = async (accountId, accountData) => {
+
+    try {
+
+      await updateAccount(accountId, accountData);
+
+      toast.success('Cuenta actualizada exitosamente');
+
+      setShowDetailModal(false);
+
+      await loadAccounts();
+
+    } catch (error) {
+
+      toast.error(
+        error.response?.data?.message ||
+        'Error al actualizar cuenta'
+      );
+    }
+  };
+
+  const handleChangeStatus = async (accountId, isActive) => {
+
+    try {
+
+      await changeAccountStatus(accountId, isActive);
+
+      toast.success(
+        isActive
+          ? 'Cuenta activada'
+          : 'Cuenta desactivada'
+      );
+
+      await loadAccounts();
+
+    } catch (error) {
+
+      toast.error(
+        'Error al cambiar estado de la cuenta'
+      );
+    }
+  };
+
+  const filteredAccounts = (accounts || []).filter(account => {
+
+    return (
+      !searchTerm ||
+
+      account.accountNumber
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+
+      account.type
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    );
+  });
+
   return (
-    <div className={`
-      relative group p-6 rounded-2xl border transition-all duration-400
-      ${isDark 
-        ? "bg-[var(--color-dark-surface)] border-[var(--color-dark-border)] hover:border-[var(--color-dark-secondary)]" 
-        : "bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[var(--color-secondary)]"}
-      hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)]
-    `}>
-      {/* Indicador de Estado Sutil */}
-      <div className={`absolute top-6 right-6 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
-        ${isActive 
-          ? (isDark ? "bg-emerald-500/10 text-emerald-400" : "bg-emerald-50 text-emerald-600")
-          : (isDark ? "bg-rose-500/10 text-rose-400" : "bg-rose-50 text-rose-600")}
-      `}>
-        <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-rose-500"}`} />
-        {isActive ? "Operativa" : "Suspendida"}
+    <div className="p-4 md:p-6">
+
+      {/* HEADER */}
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">
+            Gestión de Cuentas
+          </h1>
+
+          <p className="text-gray-500 text-sm mt-1">
+            Administra las cuentas bancarias del sistema
+          </p>
+        </div>
+
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="bg-green-600 px-4 py-2 rounded text-white hover:bg-green-700 transition font-medium"
+        >
+          + Crear Cuenta
+        </button>
+
       </div>
 
-      <div className="flex flex-col h-full">
-        {/* Información de Identificación */}
-        <div className="mb-8">
-          <p className={`text-[10px] uppercase tracking-[0.15em] font-bold mb-1 opacity-60
-            ${isDark ? "text-[var(--color-dark-text-secondary)]" : "text-[var(--color-text-secondary)]"}`}>
-            Número de Cuenta
-          </p>
-          <h2 className={`text-lg font-mono font-medium tracking-tight ${isDark ? "text-[var(--color-dark-text-primary)]" : "text-[var(--color-text-primary)]"}`}>
-            **** {id.slice(-4)}
-          </h2>
-          <span className={`text-xs mt-1 block font-medium ${isDark ? "text-blue-400" : "text-blue-600"}`}>
-            {type}
-          </span>
-        </div>
+      {/* FILTROS */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 mb-4">
 
-        {/* Balance con jerarquía visual clara */}
-        <div className="mb-8">
-          <p className={`text-[10px] uppercase tracking-[0.15em] font-bold mb-1 opacity-60
-            ${isDark ? "text-[var(--color-dark-text-secondary)]" : "text-[var(--color-text-secondary)]"}`}>
-            Saldo Disponible
-          </p>
-          <div className="flex items-baseline gap-1">
-            <span className={`text-sm font-semibold ${isDark ? "text-[var(--color-dark-text-secondary)]" : "text-[var(--color-text-secondary)]"}`}>Q</span>
-            <span className={`text-3xl font-light tracking-tight ${isDark ? "text-[var(--color-dark-text-primary)]" : "text-[var(--color-text-primary)]"}`}>
-              {balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-          </div>
-        </div>
+        <input
+          type="text"
+          placeholder="Buscar por número de cuenta o tipo..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+        />
 
-        {/* Acciones de baja fricción */}
-        <div className="mt-auto pt-4 flex gap-4 border-t border-gray-100 dark:border-gray-800">
-          <button className={`text-xs font-bold uppercase tracking-widest hover:opacity-100 transition-opacity opacity-70
-            ${isDark ? "text-[var(--color-dark-primary)]" : "text-[var(--color-primary)]"}`}>
-            Detalles
-          </button>
-          <button className={`text-xs font-bold uppercase tracking-widest hover:opacity-100 transition-opacity opacity-70
-            ${isDark ? "text-[var(--color-dark-text-secondary)]" : "text-[var(--color-text-secondary)]"}`}>
-            Ajustes
-          </button>
-        </div>
       </div>
-    </div>
-  );
-};
 
-export const Accounts = ({ darkMode = false }) => {
-  return (
-    <div className={`min-h-screen transition-colors duration-500 font-sans
-      ${darkMode ? "bg-[var(--color-dark-background)]" : "bg-[var(--color-background)]"}`}>
-      
-      <div className="max-w-6xl mx-auto px-6 py-12">
-        {/* Header Minimalista */}
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
-            <h1 className={`text-2xl font-semibold tracking-tight ${darkMode ? "text-white" : "text-[var(--color-text-primary)]"}`}>
-              Cuentas
-            </h1>
-            <p className={`text-sm mt-1 font-medium opacity-60 ${darkMode ? "text-[var(--color-dark-text-secondary)]" : "text-[var(--color-text-secondary)]"}`}>
-              Resumen global de tus activos financieros.
+      {/* TABLA */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+
+        <div className="overflow-x-auto">
+
+          <table className="min-w-full text-sm">
+
+            <thead className="bg-gray-50 text-gray-700">
+
+              <tr>
+                <th className="text-left px-4 py-3 font-semibold">
+                  Número de Cuenta
+                </th>
+
+                <th className="text-left px-4 py-3 font-semibold">
+                  Tipo
+                </th>
+
+                <th className="text-left px-4 py-3 font-semibold">
+                  Titular
+                </th>
+
+                <th className="text-right px-4 py-3 font-semibold">
+                  Saldo
+                </th>
+
+                <th className="text-left px-4 py-3 font-semibold">
+                  Estado
+                </th>
+
+                <th className="text-right px-4 py-3 font-semibold">
+                  Acciones
+                </th>
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {loading ? (
+
+                <tr>
+                  <td
+                    colSpan="6"
+                    className="px-4 py-8 text-center text-gray-500"
+                  >
+                    Cargando cuentas...
+                  </td>
+                </tr>
+
+              ) : filteredAccounts.length === 0 ? (
+
+                <tr>
+                  <td
+                    colSpan="6"
+                    className="px-4 py-8 text-center text-gray-500"
+                  >
+                    No hay cuentas para mostrar.
+                  </td>
+                </tr>
+
+              ) : (
+
+                filteredAccounts.map((account) => (
+
+                  <tr
+                    key={account._id}
+                    className="border-t hover:bg-gray-50 transition"
+                  >
+
+                    <td className="px-4 py-3 font-medium text-gray-800">
+                      {account.accountNumber}
+                    </td>
+
+                    <td className="px-4 py-3 text-gray-700">
+                      {account.type}
+                    </td>
+
+                    <td className="px-4 py-3 text-gray-700">
+                      {account.user?.name || 'Usuario no encontrado'}
+                    </td>
+
+                    <td className="px-4 py-3 text-right font-medium text-gray-800">
+
+                      Q {
+                        account.balance?.toLocaleString(
+                          'es-ES',
+                          {
+                            minimumFractionDigits: 2
+                          }
+                        ) || '0.00'
+                      }
+
+                    </td>
+
+                    <td className="px-4 py-3">
+
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          account.isActive
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}
+                      >
+                        {account.isActive
+                          ? 'Activa'
+                          : 'Inactiva'}
+                      </span>
+
+                    </td>
+
+                    <td className="px-4 py-3 text-right space-x-2">
+
+                      <button
+                        onClick={() => {
+                          setSelectedAccount(account);
+                          setShowDetailModal(true);
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 inline-block"
+                      >
+                        Ver
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          handleChangeStatus(
+                            account._id,
+                            !account.isActive
+                          )
+                        }
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold inline-block ${
+                          account.isActive
+                            ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                            : 'bg-green-100 text-green-700 hover:bg-green-200'
+                        }`}
+                      >
+                        {account.isActive
+                          ? 'Desactivar'
+                          : 'Activar'}
+                      </button>
+
+                    </td>
+
+                  </tr>
+                ))
+              )}
+
+            </tbody>
+
+          </table>
+        </div>
+
+        {/* PAGINACIÓN */}
+        {!loading && filteredAccounts.length > 0 && (
+
+          <div className="flex items-center justify-between px-4 py-3 border-t bg-gray-50">
+
+            <p className="text-xs text-gray-600">
+
+              Página {pagination.currentPage}
+              {' '}de{' '}
+              {pagination.totalPages}
+
+              {' '}({pagination.total} cuentas)
+
             </p>
+
+            <div className="flex gap-2">
+
+              <button
+                onClick={() =>
+                  setPagination({
+                    ...pagination,
+                    currentPage: Math.max(
+                      1,
+                      pagination.currentPage - 1
+                    )
+                  })
+                }
+                disabled={pagination.currentPage === 1}
+                className="px-3 py-1.5 rounded border bg-white text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Anterior
+              </button>
+
+              <span className="px-2 py-1.5 text-sm text-gray-700">
+                {pagination.currentPage}
+                {' / '}
+                {pagination.totalPages}
+              </span>
+
+              <button
+                onClick={() =>
+                  setPagination({
+                    ...pagination,
+                    currentPage: Math.min(
+                      pagination.totalPages,
+                      pagination.currentPage + 1
+                    )
+                  })
+                }
+                disabled={
+                  pagination.currentPage ===
+                  pagination.totalPages
+                }
+                className="px-3 py-1.5 rounded border bg-white text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Siguiente
+              </button>
+
+            </div>
           </div>
-
-          <button className={`
-            px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-all
-            ${darkMode 
-              ? "bg-[var(--color-dark-primary)] text-[#0B1C2C] hover:bg-white" 
-              : "bg-[var(--color-primary)] text-white hover:shadow-lg hover:-translate-y-0.5"}
-          `}>
-            Aperturar Cuenta
-          </button>
-        </header>
-
-        {/* Layout de Rejilla Profesional */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <AccountCard 
-            darkMode={darkMode}
-            id="123456789"
-            type="Cuenta Corriente"
-            balance={15450.00}
-            isActive={true}
-          />
-          <AccountCard 
-            darkMode={darkMode}
-            id="987654321"
-            type="Fondo de Inversión"
-            balance={4200.55}
-            isActive={true}
-          />
-          {/* Card para agregar (Estilo Minimalista) */}
-          <button className={`
-            border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-6 min-h-[220px] transition-all
-            ${darkMode 
-              ? "border-gray-800 text-gray-500 hover:border-gray-700 hover:text-gray-400" 
-              : "border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-500"}
-          `}>
-            <span className="text-2xl mb-2">+</span>
-            <span className="text-xs font-bold uppercase tracking-widest">Nueva Cartera</span>
-          </button>
-        </div>
+        )}
       </div>
+
+      {/* MODALES */}
+      <CreateAccountModal
+        isOpen={showCreateModal}
+        users={users}
+        onClose={() => setShowCreateModal(false)}
+        onCreate={handleCreateAccount}
+      />
+
+      {selectedAccount && (
+
+        <AccountDetailModal
+          isOpen={showDetailModal}
+          account={selectedAccount}
+          onClose={() => {
+            setShowDetailModal(false);
+            setSelectedAccount(null);
+          }}
+          onUpdate={handleUpdateAccount}
+        />
+
+      )}
     </div>
   );
 };
