@@ -1,81 +1,158 @@
+import { useAuthStore } from "../../../features/auth/authStore.js";
+import { useNavigate } from "react-router-dom";
 import logoLight from "../../../assets/img/veraff-light.png";
 import logoDark from "../../../assets/img/veraff-dark.png";
-import Sun from "../../../assets/icons/sun.svg";
-import Moon from "../../../assets/icons/moon.svg";
-import Bell from "../../../assets/icons/bell.svg";
 
 export const Navbar = ({ darkMode, setDarkMode }) => {
+  const navigate = useNavigate();
+  const logout = useAuthStore((state) => state.logout);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
+
+  const dm = darkMode;
+
   return (
     <nav
-      className={`sticky top-0 z-50 h-20 px-8 flex items-center justify-between border-b transition-all duration-500 backdrop-blur-md
-      ${darkMode 
-        ? 'bg-[var(--color-dark-background)]/80 border-[var(--color-dark-border)]' 
-        : 'bg-white/80 border-[var(--color-border)]'}`}
+      className="sticky top-0 z-50 h-16 px-6 flex items-center justify-between transition-colors duration-300"
+      style={{
+        backgroundColor: dm ? "var(--color-dark-surface)" : "var(--color-surface)",
+        borderBottom: `1px solid ${dm ? "var(--color-dark-border)" : "var(--color-border)"}`,
+      }}
     >
-      {/* BRAND SECTION */}
+      {/* BRAND */}
       <div className="flex items-center gap-4">
         <img
-          src={darkMode ? logoDark : logoLight}
-          alt="Bank Logo"
-          className="h-10 w-auto transition-transform duration-300 hover:scale-105"
+          src={dm ? logoDark : logoLight}
+          alt="Veraff Bank"
+          className="h-8 w-auto"
         />
-        
-        <div className="hidden sm:block border-l pl-4 border-slate-300 dark:border-slate-700">
-          <h1 className={`font-bold text-lg tracking-tight leading-none ${darkMode ? 'text-white' : 'text-[var(--color-text-primary)]'}`}>
+        <div
+          className="hidden sm:block w-px h-6"
+          style={{ backgroundColor: dm ? "var(--color-dark-border)" : "var(--color-border)" }}
+        />
+        <div className="hidden sm:block">
+          <p
+            className="text-[11px] font-semibold uppercase tracking-[0.12em] leading-none"
+            style={{ color: dm ? "var(--color-dark-text-primary)" : "var(--color-text-primary)" }}
+          >
             Veraff Bank
-          </h1>
-          <p className={`text-[10px] uppercase tracking-[0.15em] opacity-60 font-medium mt-1 ${darkMode ? 'text-white' : 'text-[var(--color-text-primary)]'}`}>
+          </p>
+          <p
+            className="text-[9px] uppercase tracking-[0.18em] mt-0.5"
+            style={{ color: dm ? "var(--color-dark-text-secondary)" : "var(--color-text-secondary)" }}
+          >
             Banca Digital
           </p>
         </div>
       </div>
 
-      {/* CONTROLES Y PERFIL */}
-      <div className="flex items-center gap-3 sm:gap-6">
-        
-        {/* Toggle Dark Mode (Estilo Minimalista) */}
+      {/* CONTROLES */}
+      <div className="flex items-center gap-2">
+
+        {/* Toggle Dark Mode */}
         <button
-          onClick={() => setDarkMode(!darkMode)}
-          className={`p-2.5 rounded-xl border transition-all hover:shadow-sm active:scale-95
-            ${darkMode 
-              ? 'bg-slate-800 border-slate-700 text-yellow-400' 
-              : 'bg-slate-50 border-slate-200 text-slate-600'}`}
+          onClick={() => setDarkMode(!dm)}
+          title={dm ? "Modo claro" : "Modo oscuro"}
+          className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95"
+          style={{
+            backgroundColor: dm ? "var(--color-dark-background)" : "var(--color-background)",
+            border: `1px solid ${dm ? "var(--color-dark-border)" : "var(--color-border)"}`,
+            color: dm ? "var(--color-dark-primary)" : "var(--color-primary)",
+          }}
         >
-          {darkMode ? (
-            <img src={Sun} className="w-5 h-5 invert dark:invert-0" />
+          {dm ? (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
           ) : (
-            <img src={Moon} className="w-5 h-5" />
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
           )}
         </button>
 
         {/* Notificaciones */}
-        <button className="relative p-2.5 text-xl opacity-70 hover:opacity-100 transition-opacity">
-          {darkMode ? (
-            <img src={Bell} className="w-5 h-5 invert dark:invert-0" />
-          ) : (
-            <img src={Bell} className="w-5 h-5" />
-          )}
-          <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+        <button
+          className="relative w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95"
+          style={{
+            backgroundColor: dm ? "var(--color-dark-background)" : "var(--color-background)",
+            border: `1px solid ${dm ? "var(--color-dark-border)" : "var(--color-border)"}`,
+            color: dm ? "var(--color-dark-text-secondary)" : "var(--color-text-secondary)",
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span
+            className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full"
+            style={{ backgroundColor: "var(--color-error)" }}
+          />
         </button>
 
-        {/* Separador Visual */}
-        <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 hidden xs:block"></div>
+        {/* Separador */}
+        <div
+          className="w-px h-6 mx-1"
+          style={{ backgroundColor: dm ? "var(--color-dark-border)" : "var(--color-border)" }}
+        />
 
-        {/* Perfil de Usuario */}
-        <div className="flex items-center gap-3 group cursor-pointer pl-2">
-          <div className="text-right hidden md:block">
-            <p className={`text-xs font-bold leading-none ${darkMode ? 'text-white' : 'text-[var(--color-text-primary)]'}`}>
+        {/* Perfil */}
+        <div className="flex items-center gap-2.5">
+          <div className="hidden md:block text-right">
+            <p
+              className="text-xs font-semibold leading-none"
+              style={{ color: dm ? "var(--color-dark-text-primary)" : "var(--color-text-primary)" }}
+            >
               Administrador
             </p>
+            <p
+              className="text-[10px] mt-0.5"
+              style={{ color: dm ? "var(--color-dark-text-secondary)" : "var(--color-text-secondary)" }}
+            >
+              admin@veraff.com
+            </p>
           </div>
-          
+
           <div className="relative">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)] flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold"
+              style={{
+                backgroundColor: dm ? "var(--color-dark-primary)" : "var(--color-primary)",
+                color: dm ? "#0B1C2C" : "white",
+              }}
+            >
               A
             </div>
-            {/* Indicador de status en móvil */}
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full md:hidden"></div>
+            <span
+              className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2"
+              style={{
+                backgroundColor: "var(--color-success)",
+                borderColor: dm ? "var(--color-dark-surface)" : "var(--color-surface)",
+              }}
+            />
           </div>
+
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            title="Cerrar sesión"
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95"
+            style={{
+              backgroundColor: dm ? "var(--color-dark-background)" : "var(--color-background)",
+              border: `1px solid ${dm ? "var(--color-dark-border)" : "var(--color-border)"}`,
+              color: dm ? "var(--color-dark-text-secondary)" : "var(--color-text-secondary)",
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </button>
         </div>
       </div>
     </nav>

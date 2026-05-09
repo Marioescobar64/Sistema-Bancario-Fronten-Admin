@@ -1,133 +1,160 @@
-import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import bankIcon from '../../../assets/icons/dollar-sign.svg';
-import cardIcon from '../../../assets/icons/credit-card.svg';
-import sendIcon from '../../../assets/icons/send.svg';
-import chartIcon from '../../../assets/icons/bar-chart.svg';
-import userIcon from '../../../assets/icons/user.svg';
-import fileIcon from '../../../assets/icons/file.svg';
-import alertIcon from '../../../assets/icons/alert-triangle.svg';
-import lockIcon from '../../../assets/icons/lock.svg';
+
+const NAV_ITEMS = [
+  {
+    label: "Cuentas",
+    to: "/dashboard/accounts",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+      </svg>
+    ),
+  },
+  {
+    label: "Tarjetas",
+    to: "/dashboard/cards",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+      </svg>
+    ),
+  },
+  {
+    label: "Transferencias",
+    to: "/dashboard/transfers",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    ),
+  },
+  {
+    label: "Préstamos",
+    to: "/dashboard/loans",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+      </svg>
+    ),
+  },
+  {
+    label: "Usuarios",
+    to: "/dashboard/users",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    ),
+  },
+  {
+    label: "Auditoría",
+    to: "/dashboard/audit-logs",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>
+      </svg>
+    ),
+  },
+  {
+    label: "Mov. Sospechosos",
+    to: "/dashboard/suspicious-movements",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    ),
+    alert: true,
+  },
+];
 
 export const Sidebar = ({ darkMode = false }) => {
   const location = useLocation();
-
-  const items = [
-    { label: "Cuentas", to: "/dashboard/accounts", icon: bankIcon },
-    { label: "Tarjetas", to: "/dashboard/cards", icon: cardIcon },
-    { label: "Transferencias", to: "/dashboard/transfers", icon: sendIcon },
-    { label: "Préstamos", to: "/dashboard/loans", icon: chartIcon },
-    { label: "Usuarios", to: "/dashboard/users", icon: userIcon },
-    { label: "Registros de Auditoría", to: "/dashboard/audit-logs", icon: fileIcon },
-    { label: "Movimientos Sospechosos", to: "/dashboard/suspicious-movements", icon: alertIcon },
-  ];
+  const dm = darkMode;
 
   return (
     <aside
-      className="w-64 min-h-[calc(100vh-5rem)] p-4 transition-colors duration-500 overflow-y-auto"
+      className="w-56 min-h-[calc(100vh-4rem)] flex flex-col transition-colors duration-300"
       style={{
-        backgroundColor: darkMode
-          ? "var(--color-dark-surface)"
-          : "var(--color-surface)",
-        borderRight: `1px solid ${
-          darkMode ? "var(--color-dark-border)" : "var(--color-border)"
-        }`,
+        backgroundColor: dm ? "var(--color-dark-surface)" : "var(--color-surface)",
+        borderRight: `1px solid ${dm ? "var(--color-dark-border)" : "var(--color-border)"}`,
       }}
     >
-      {/* Header sidebar */}
-      <div className="mb-6 px-2">
-        <h2
-          className="text-sm font-semibold tracking-wide uppercase"
-          style={{
-            color: darkMode
-              ? "var(--color-dark-text-secondary)"
-              : "var(--color-text-secondary)",
-          }}
+      {/* Sección de navegación */}
+      <nav className="flex-1 py-5 px-3">
+        <p
+          className="text-[9px] font-bold uppercase tracking-[0.16em] px-3 mb-3"
+          style={{ color: dm ? "var(--color-dark-text-secondary)" : "var(--color-text-secondary)" }}
         >
-          Menú Principal
-        </h2>
-      </div>
+          Navegación
+        </p>
 
-      {/* Items */}
-      <ul className="space-y-2">
-        {items.map((item) => {
-          const isActive = location.pathname === item.to;
+        <ul className="space-y-0.5">
+          {NAV_ITEMS.map((item) => {
+            const isActive = location.pathname === item.to;
 
-          return (
-            <li key={item.label}>
-              <Link
-                to={item.to}
-                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-left transition-all duration-300 transform hover:scale-[1.02]"
-                style={{
-                  backgroundColor: isActive
-                    ? darkMode
-                      ? "rgba(59, 130, 246, 0.15)"
-                      : "rgba(37, 99, 235, 0.10)"
-                    : "transparent",
-
-                  color: isActive
-                    ? darkMode
-                      ? "#93c5fd"
-                      : "var(--color-primary)"
-                    : darkMode
-                    ? "var(--color-dark-text-primary)"
-                    : "var(--color-text-primary)",
-
-                  borderLeft: isActive
-                    ? "3px solid var(--color-primary)"
-                    : "3px solid transparent",
-                }}
-              >
-                {/* Icon with dynamic color using filter */}
-                <img
-                  src={item.icon}
-                  className="w-5 h-5 opacity-80"
-                  alt={item.label}
+            return (
+              <li key={item.to}>
+                <Link
+                  to={item.to}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200"
                   style={{
-                    filter: darkMode
-                      ? "invert(1) sepia(1) saturate(5) hue-rotate(180deg)"
-                      : "none",
+                    backgroundColor: isActive
+                      ? dm ? "rgba(93,173,226,0.12)" : "rgba(31,78,121,0.08)"
+                      : "transparent",
+                    color: isActive
+                      ? dm ? "var(--color-dark-primary)" : "var(--color-primary)"
+                      : dm ? "var(--color-dark-text-primary)" : "var(--color-text-primary)",
+                    borderLeft: isActive
+                      ? `2px solid ${dm ? "var(--color-dark-primary)" : "var(--color-primary)"}`
+                      : "2px solid transparent",
+                    borderRadius: isActive ? "0 8px 8px 0" : "8px",
+                    fontWeight: isActive ? "600" : "400",
                   }}
-                />
+                >
+                  <span
+                    style={{
+                      color: isActive
+                        ? dm ? "var(--color-dark-primary)" : "var(--color-primary)"
+                        : dm ? "var(--color-dark-text-secondary)" : "var(--color-text-secondary)",
+                    }}
+                  >
+                    {item.icon}
+                  </span>
 
-                {/* Label */}
-                <span className="text-sm font-medium">
-                  {item.label}
-                </span>
+                  <span className="text-[13px] flex-1 leading-none">{item.label}</span>
 
-                {/* Active indicator */}
-                {isActive && (
-                  <span className="ml-auto w-2 h-2 rounded-full bg-blue-500" />
-                )}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+                  {item.alert && !isActive && (
+                    <span
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{ backgroundColor: "var(--color-error)" }}
+                    />
+                  )}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
 
-      {/* Footer info */}
-      <div className="mt-auto flex justify-center pb-4 pt-4">
-        <div
-          className="px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 flex items-center"
-          style={{
-            backgroundColor: darkMode
-              ? "rgba(59, 130, 246, 0.15)"
-              : "rgba(37, 99, 235, 0.10)",
-            color: darkMode ? "#93c5fd" : "var(--color-primary)",
-            border: `1px solid ${
-              darkMode
-                ? "rgba(59, 130, 246, 0.3)"
-                : "rgba(37, 99, 235, 0.2)"
-            }`,
-          }}
-        >
-          {/* Imagen a la izquierda del texto */}
-          <img
-            src={lockIcon}
-            alt="Lock icon"
-            className="w-5 h-5 mr-2"
-          />
-          <span>Sistema bancario seguro</span>
+      {/* Footer */}
+      <div
+        className="px-4 py-4"
+        style={{ borderTop: `1px solid ${dm ? "var(--color-dark-border)" : "var(--color-border)"}` }}
+      >
+        <div className="flex items-center gap-2">
+          <svg
+            width="12" height="12" viewBox="0 0 24 24" fill="none"
+            stroke={dm ? "var(--color-dark-primary)" : "var(--color-primary)"}
+            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span
+            className="text-[10px]"
+            style={{ color: dm ? "var(--color-dark-text-secondary)" : "var(--color-text-secondary)" }}
+          >
+            Conexión SSL · 256-bit
+          </span>
         </div>
       </div>
     </aside>
