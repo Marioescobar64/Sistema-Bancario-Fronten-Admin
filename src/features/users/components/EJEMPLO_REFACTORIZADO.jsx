@@ -1,4 +1,13 @@
+/**
+ * EJEMPLO DE REFACTORIZACIÓN
+ * 
+ * Antes: 150+ líneas de código con lógica duplicada
+ * Después: ~80 líneas sin duplicación
+ */
+
 import React, { useState, useEffect } from 'react';
+import { useDarkMode } from '../../../shared/hooks';
+import { usePaginatedList } from '../../../shared/hooks';
 import toast from 'react-hot-toast';
 
 import {
@@ -8,37 +17,34 @@ import {
   changeUserStatus
 } from '../../../shared/api/banking';
 
-import { useDarkMode, usePaginatedList } from '../../../shared/hooks';
-import {
-  Pagination,
-  SearchFilter,
+// Componentes compartidos
+import { 
+  Pagination, 
+  SearchFilter, 
   TableHeader,
   ActionButton,
   StatusBadge,
   LoadingSpinner,
-  EmptyState
+  EmptyState 
 } from '../../../shared/components';
-import {
-  getSurfaceStyle,
-  getPrimaryTextStyle,
-  getSecondaryTextStyle,
-  getTableRowStyle
-} from '../../../shared/utils/styleHelpers';
+
+import { getSurfaceStyle, getPrimaryTextStyle, getSecondaryTextStyle, getPrimaryButtonStyle } from '../../../shared/utils/styleHelpers';
 
 import { CreateUserModal } from './CreateUserModal';
 import { UserDetailModal } from './UserDetailModal';
 
-export const Users = () => {
+export const UsersOptimized = () => {
+  // Hooks simplificados
   const dm = useDarkMode();
-  const {
-    items: users,
-    loading,
-    pagination,
-    loadItems,
-    nextPage,
+  const { 
+    items: users, 
+    loading, 
+    pagination, 
+    loadItems, 
+    nextPage, 
     prevPage,
-    resetPage
-  } = usePaginatedList(getUsers, 10);
+    resetPage 
+  } = usePaginatedList(getUsers);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
@@ -46,11 +52,24 @@ export const Users = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
+  // Auto-load datos al cambiar página
   useEffect(() => {
     loadItems();
   }, [pagination.currentPage]);
 
-  const handleCreateUser = async (userData) => {
+  // Filtrado local
+  const filteredUsers = (users || []).filter(user => {
+    const matchSearch = !searchTerm || 
+      user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user?.email?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchRole = !roleFilter || user?.role === roleFilter;
+    
+    return matchSearch && matchRole;
+  });
+
+  // Manejadores
+  const handleCreate = async (userData) => {
     try {
       await createUser(userData);
       toast.success('Usuario creado exitosamente');
@@ -62,7 +81,7 @@ export const Users = () => {
     }
   };
 
-  const handleUpdateUser = async (userId, userData) => {
+  const handleUpdate = async (userId, userData) => {
     try {
       await updateUser(userId, userData);
       toast.success('Usuario actualizado exitosamente');
@@ -82,14 +101,6 @@ export const Users = () => {
       toast.error('Error al cambiar estado del usuario');
     }
   };
-
-  const filteredUsers = (users || []).filter(user => {
-    const matchSearch = !searchTerm ||
-      user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user?.email?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchRole = !roleFilter || user?.role === roleFilter;
-    return matchSearch && matchRole;
-  });
 
   const columns = [
     { key: 'name', label: 'Nombre' },
@@ -119,17 +130,23 @@ export const Users = () => {
       </div>
 
       {/* BÚSQUEDA Y FILTROS */}
-      <SearchFilter value={searchTerm} onChange={setSearchTerm} placeholder="Buscar por nombre o email...">
-        <select
-          value={roleFilter}
-          onChange={(e) => setRoleFilter(e.target.value)}
-          className="w-full px-3 py-2 rounded-lg focus:outline-none"
-          style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
-        >
-          <option value="">Todos los roles</option>
-          <option value="ADMIN">ADMIN</option>
-          <option value="USER">USER</option>
-        </select>
+      <SearchFilter
+        value={searchTerm}
+        onChange={setSearchTerm}
+        placeholder="Buscar por nombre o email..."
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            className="w-full px-3 py-2 rounded-lg focus:outline-none"
+            style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
+          >
+            <option value="">Todos los roles</option>
+            <option value="ADMIN">Administrador</option>
+            <option value="USER">Usuario</option>
+          </select>
+        </div>
       </SearchFilter>
 
       {/* TABLA */}
@@ -137,30 +154,30 @@ export const Users = () => {
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <TableHeader columns={columns} />
+            
             <tbody>
               {loading ? (
-                <LoadingSpinner colSpan={5} message="Cargando usuarios..." />
+                <LoadingSpinner colSpan={5} />
               ) : filteredUsers.length === 0 ? (
-                <EmptyState colSpan={5} message="No hay usuarios para mostrar." />
+                <EmptyState message="No hay usuarios para mostrar." colSpan={5} />
               ) : (
                 filteredUsers.map(user => (
-                  <tr key={user._id} className="border-t transition" style={getTableRowStyle(dm)}>
+                  <tr key={user._id} className="border-t" style={{ borderTopColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)' }}>
                     <td className="px-4 py-3 font-medium" style={getPrimaryTextStyle(dm)}>
-                      {user?.name || '-'}
+                      {user.name}
                     </td>
                     <td className="px-4 py-3" style={getSecondaryTextStyle(dm)}>
-                      {user?.email || '-'}
+                      {user.email}
+                    </td>
+                    <td className="px-4 py-3" style={getSecondaryTextStyle(dm)}>
+                      {user.role}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{
-                        backgroundColor: user?.role === 'ADMIN' ? (dm ? 'rgba(236,112,99,0.18)' : '#FEE2E2') : (dm ? 'rgba(93,173,226,0.18)' : '#DBEAFE'),
-                        color: user?.role === 'ADMIN' ? (dm ? '#F5B7B1' : '#B91C1C') : (dm ? 'var(--color-dark-primary)' : 'var(--color-primary)')
-                      }}>
-                        {user?.role || 'USER'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusBadge isActive={user?.isActive} activeLabel="Activo" inactiveLabel="Inactivo" />
+                      <StatusBadge 
+                        isActive={user.isActive}
+                        activeLabel="Activo"
+                        inactiveLabel="Inactivo"
+                      />
                     </td>
                     <td className="px-4 py-3 text-right space-x-2">
                       <ActionButton
@@ -172,9 +189,9 @@ export const Users = () => {
                         variant="blue"
                       />
                       <ActionButton
-                        label={user?.isActive ? 'Desactivar' : 'Activar'}
+                        label={user.isActive ? 'Desactivar' : 'Activar'}
                         onClick={() => handleChangeStatus(user._id, !user.isActive)}
-                        variant={user?.isActive ? 'danger' : 'success'}
+                        variant={user.isActive ? 'danger' : 'success'}
                       />
                     </td>
                   </tr>
@@ -200,18 +217,16 @@ export const Users = () => {
       <CreateUserModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
-        onCreate={handleCreateUser}
+        onCreate={handleCreate}
         darkMode={dm}
       />
+
       {selectedUser && (
         <UserDetailModal
           isOpen={showDetailModal}
           user={selectedUser}
-          onClose={() => {
-            setShowDetailModal(false);
-            setSelectedUser(null);
-          }}
-          onUpdate={handleUpdateUser}
+          onClose={() => setShowDetailModal(false)}
+          onUpdate={handleUpdate}
           darkMode={dm}
         />
       )}

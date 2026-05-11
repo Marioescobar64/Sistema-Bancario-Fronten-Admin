@@ -49,7 +49,7 @@ export const CreateUserModal = ({ isOpen, onClose, onCreate, darkMode = false })
                 className="w-full px-3 py-2 rounded-lg focus:outline-none"
                 style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.name ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
               />
-              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
+              {errors.name && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.name.message}</p>}
             </div>
 
             <div>
@@ -65,7 +65,7 @@ export const CreateUserModal = ({ isOpen, onClose, onCreate, darkMode = false })
                 className="w-full px-3 py-2 rounded-lg focus:outline-none"
                 style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.email ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
               />
-              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+              {errors.email && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.email.message}</p>}
             </div>
           </div>
 
@@ -79,7 +79,7 @@ export const CreateUserModal = ({ isOpen, onClose, onCreate, darkMode = false })
               className="w-full px-3 py-2 rounded-lg focus:outline-none"
               style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.password ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
             />
-            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+            {errors.password && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.password.message}</p>}
           </div>
 
           <div>
@@ -95,7 +95,7 @@ export const CreateUserModal = ({ isOpen, onClose, onCreate, darkMode = false })
               <option value="ADMIN">ADMIN</option>
               <option value="USER">USER</option>
             </select>
-            {errors.role && <p className="text-red-500 text-xs mt-1">{errors.role.message}</p>}
+            {errors.role && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.role.message}</p>}
           </div>
 
           {/* BOTONES */}

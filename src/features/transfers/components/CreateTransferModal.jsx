@@ -61,7 +61,7 @@ export const CreateTransferModal = ({ isOpen, accounts, onClose, onCreate, darkM
                   </option>
                 ))}
               </select>
-              {errors.fromAccount && <p className="text-red-500 text-xs mt-1">{errors.fromAccount.message}</p>}
+              {errors.fromAccount && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.fromAccount.message}</p>}
             </div>
 
             <div>
@@ -80,7 +80,7 @@ export const CreateTransferModal = ({ isOpen, accounts, onClose, onCreate, darkM
                   </option>
                 ))}
               </select>
-              {errors.toAccount && <p className="text-red-500 text-xs mt-1">{errors.toAccount.message}</p>}
+              {errors.toAccount && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.toAccount.message}</p>}
             </div>
           </div>
 
@@ -98,7 +98,7 @@ export const CreateTransferModal = ({ isOpen, accounts, onClose, onCreate, darkM
               className="w-full px-3 py-2 rounded-lg focus:outline-none"
               style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.amount ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
             />
-            {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount.message}</p>}
+            {errors.amount && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.amount.message}</p>}
           </div>
 
           {fromAccountObj && (

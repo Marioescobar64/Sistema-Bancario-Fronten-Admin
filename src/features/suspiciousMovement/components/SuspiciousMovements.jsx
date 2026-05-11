@@ -1,77 +1,83 @@
 import React, { useState, useEffect } from 'react';
-import { useOutletContext } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { getSuspiciousMovements, updateSuspiciousMovementStatus } from '../../../shared/api/banking';
 
+import { useDarkMode, usePaginatedList } from '../../../shared/hooks';
+import {
+  Pagination,
+  TableHeader,
+  LoadingSpinner,
+  EmptyState
+} from '../../../shared/components';
+import {
+  getSurfaceStyle,
+  getPrimaryTextStyle,
+  getSecondaryTextStyle,
+  getTableRowStyle
+} from '../../../shared/utils/styleHelpers';
+
 export const SuspiciousMovements = () => {
-  const { darkMode = false } = useOutletContext() ?? {};
-  const dm = darkMode;
-  const [movements, setMovements] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const dm = useDarkMode();
+  const {
+    items: movements,
+    loading,
+    pagination,
+    loadItems,
+    nextPage,
+    prevPage,
+    resetPage
+  } = usePaginatedList(getSuspiciousMovements, 20);
+
   const [filterStatus, setFilterStatus] = useState('');
-  const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1 });
 
   useEffect(() => {
-    loadMovements();
-  }, [pagination.currentPage, filterStatus]);
+    resetPage();
+    loadItems();
+  }, [filterStatus]);
 
-  const loadMovements = async () => {
-    setLoading(true);
-    try {
-      const response = await getSuspiciousMovements(
-        pagination.currentPage, 
-        20,
-        filterStatus || null
-      );
-      setMovements(response.data);
-      setPagination({
-        currentPage: response.pagination?.currentPage || 1,
-        totalPages: response.pagination?.totalPages || 1,
-        total: response.pagination?.totalRecords || 0
-      });
-    } catch (error) {
-      toast.error('Error al cargar movimientos sospechosos');
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    loadItems();
+  }, [pagination.currentPage]);
 
   const handleUpdateStatus = async (movementId, newStatus) => {
     try {
       await updateSuspiciousMovementStatus(movementId, newStatus);
       toast.success('Estado actualizado');
-      await loadMovements();
+      await loadItems();
     } catch (error) {
       toast.error('Error al actualizar estado');
     }
   };
 
   const statusColors = {
-    'PENDING': 'bg-yellow-100 text-yellow-700',
-    'REVIEWED': 'bg-blue-100 text-blue-700',
-    'APPROVED': 'bg-green-100 text-green-700',
-    'REJECTED': 'bg-red-100 text-red-700'
+    'PENDING': { bg: dm ? 'rgba(217,119,6,0.18)' : '#FEF3C7', text: dm ? '#D97706' : '#92400E' },
+    'REVIEWED': { bg: dm ? 'rgba(59,130,246,0.18)' : '#DBEAFE', text: dm ? '#3B82F6' : '#0284C7' },
+    'APPROVED': { bg: dm ? 'rgba(34,197,94,0.18)' : '#DCFCE7', text: dm ? '#22C55E' : '#15803D' },
+    'REJECTED': { bg: dm ? 'rgba(239,68,68,0.18)' : '#FEE2E2', text: dm ? '#EF4444' : '#DC2626' }
   };
 
+  const columns = [
+    { key: 'date', label: 'Fecha' },
+    { key: 'amount', label: 'Monto', className: 'text-right' },
+    { key: 'type', label: 'Tipo' },
+    { key: 'reason', label: 'Razón' },
+    { key: 'status', label: 'Estado' },
+    { key: 'actions', label: 'Acciones', className: 'text-right' }
+  ];
+
   return (
-    <div className="p-4 md:p-6 transition-colors duration-300" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
+    <div className="p-4 md:p-6 transition-colors duration-300" style={getPrimaryTextStyle(dm)}>
       {/* HEADER */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>Movimientos Sospechosos</h1>
-        <p className="text-sm mt-1" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
-          Transacciones detectadas como potencialmente sospechosas
-        </p>
+        <h1 className="text-3xl font-bold" style={getPrimaryTextStyle(dm)}>Movimientos Sospechosos</h1>
+        <p className="text-sm mt-1" style={getSecondaryTextStyle(dm)}>Transacciones detectadas como potencialmente sospechosas</p>
       </div>
 
       {/* FILTROS */}
-      <div className="rounded-xl shadow-sm p-4 mb-4 transition-colors duration-300" style={{ backgroundColor: dm ? 'var(--color-dark-surface)' : 'var(--color-surface)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}>
+      <div className="rounded-xl shadow-sm p-4 mb-4 transition-colors duration-300" style={getSurfaceStyle(dm)}>
         <select
           value={filterStatus}
-          onChange={(e) => {
-            setFilterStatus(e.target.value);
-            setPagination({...pagination, currentPage: 1});
-          }}
+          onChange={(e) => setFilterStatus(e.target.value)}
           className="w-full px-3 py-2 rounded-lg focus:outline-none"
           style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
         >
@@ -84,72 +90,49 @@ export const SuspiciousMovements = () => {
       </div>
 
       {/* TABLA */}
-      <div className="rounded-xl shadow-sm overflow-hidden transition-colors duration-300" style={{ backgroundColor: dm ? 'var(--color-dark-surface)' : 'var(--color-surface)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}>
+      <div className="rounded-xl shadow-sm overflow-hidden transition-colors duration-300" style={getSurfaceStyle(dm)}>
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead style={{ backgroundColor: dm ? 'rgba(27,79,114,0.25)' : 'rgba(214,234,248,0.55)' }}>
-              <tr>
-                <th className="text-left px-4 py-3 font-semibold">Referencia</th>
-                <th className="text-left px-4 py-3 font-semibold">Tipo</th>
-                <th className="text-right px-4 py-3 font-semibold">Monto</th>
-                <th className="text-left px-4 py-3 font-semibold">Razón</th>
-                <th className="text-left px-4 py-3 font-semibold">Estado</th>
-                <th className="text-right px-4 py-3 font-semibold">Acciones</th>
-              </tr>
-            </thead>
-
+            <TableHeader columns={columns} />
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan="6" className="px-4 py-8 text-center" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
-                    Cargando movimientos...
-                  </td>
-                </tr>
+                <LoadingSpinner colSpan={6} message="Cargando movimientos..." />
               ) : movements.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="px-4 py-8 text-center" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
-                    No hay movimientos sospechosos registrados.
-                  </td>
-                </tr>
+                <EmptyState colSpan={6} message="No hay movimientos sospechosos registrados." />
               ) : (
-                movements.map((movement) => (
-                  <tr key={movement._id} className="border-t transition" style={{ borderTopColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)' }}>
-                    <td className="px-4 py-3 font-medium" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
-                      {movement.reference?.slice(0, 8)}...
+                movements.map(movement => (
+                  <tr key={movement._id} className="border-t transition" style={getTableRowStyle(dm)}>
+                    <td className="px-4 py-3 font-medium" style={getPrimaryTextStyle(dm)}>
+                      {new Date(movement.date).toLocaleString('es-ES')}
                     </td>
-
-                    <td className="px-4 py-3" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
-                      {movement.type}
-                    </td>
-
-                    <td className="px-4 py-3 text-right font-medium" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
+                    <td className="px-4 py-3 text-right font-medium" style={getPrimaryTextStyle(dm)}>
                       Q {movement.amount?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}
                     </td>
-
-                    <td className="px-4 py-3 text-xs" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
+                    <td className="px-4 py-3" style={getSecondaryTextStyle(dm)}>
+                      {movement.type}
+                    </td>
+                    <td className="px-4 py-3 text-xs" style={getSecondaryTextStyle(dm)}>
                       {movement.reason}
                     </td>
-
                     <td className="px-4 py-3">
-                      <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: movement.status === 'PENDING' ? (dm ? 'rgba(245,158,11,0.18)' : '#FEF3C7') : movement.status === 'REVIEWED' ? (dm ? 'rgba(93,173,226,0.18)' : '#DBEAFE') : movement.status === 'APPROVED' ? (dm ? 'rgba(39,174,96,0.18)' : '#DCFCE7') : (dm ? 'rgba(236,112,99,0.18)' : '#FEE2E2'), color: movement.status === 'PENDING' ? (dm ? '#F9E79F' : '#B45309') : movement.status === 'REVIEWED' ? (dm ? 'var(--color-dark-primary)' : 'var(--color-primary)') : movement.status === 'APPROVED' ? (dm ? 'var(--color-dark-success)' : '#15803D') : (dm ? '#F5B7B1' : '#B91C1C') }}>
+                      <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: statusColors[movement.status]?.bg, color: statusColors[movement.status]?.text }}>
                         {movement.status}
                       </span>
                     </td>
-
                     <td className="px-4 py-3 text-right space-x-2">
                       {movement.status === 'PENDING' && (
                         <>
                           <button 
                             onClick={() => handleUpdateStatus(movement._id, 'APPROVED')}
-                            className="px-2 py-1 rounded text-xs inline-block"
-                            style={{ backgroundColor: dm ? 'rgba(39,174,96,0.18)' : '#DCFCE7', color: dm ? 'var(--color-dark-success)' : '#15803D' }}
+                            className="px-2 py-1 rounded text-xs"
+                            style={{ backgroundColor: statusColors['APPROVED'].bg, color: statusColors['APPROVED'].text }}
                           >
                             Aprobar
                           </button>
                           <button 
                             onClick={() => handleUpdateStatus(movement._id, 'REJECTED')}
-                            className="px-2 py-1 rounded text-xs inline-block"
-                            style={{ backgroundColor: dm ? 'rgba(236,112,99,0.18)' : '#FEE2E2', color: dm ? '#F5B7B1' : '#B91C1C' }}
+                            className="px-2 py-1 rounded text-xs"
+                            style={{ backgroundColor: statusColors['REJECTED'].bg, color: statusColors['REJECTED'].text }}
                           >
                             Rechazar
                           </button>
@@ -165,30 +148,13 @@ export const SuspiciousMovements = () => {
 
         {/* PAGINACIÓN */}
         {!loading && movements.length > 0 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t" style={{ backgroundColor: dm ? 'rgba(27,79,114,0.18)' : 'rgba(214,234,248,0.35)', borderTopColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)' }}>
-            <p className="text-xs" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
-              Página {pagination.currentPage} de {pagination.totalPages}
-            </p>
-
-            <div className="flex gap-2">
-              <button 
-                onClick={() => setPagination({...pagination, currentPage: Math.max(1, pagination.currentPage - 1)})}
-                disabled={pagination.currentPage === 1}
-                className="px-3 py-1.5 rounded text-sm disabled:opacity-50"
-                style={{ backgroundColor: dm ? '#0B1C2C' : '#FFFFFF', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
-              >
-                Anterior
-              </button>
-              <button 
-                onClick={() => setPagination({...pagination, currentPage: Math.min(pagination.totalPages, pagination.currentPage + 1)})}
-                disabled={pagination.currentPage === pagination.totalPages}
-                className="px-3 py-1.5 rounded text-sm disabled:opacity-50"
-                style={{ backgroundColor: dm ? '#0B1C2C' : '#FFFFFF', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
-              >
-                Siguiente
-              </button>
-            </div>
-          </div>
+          <Pagination
+            pagination={pagination}
+            onPrevPage={prevPage}
+            onNextPage={nextPage}
+            itemLabel="movimientos"
+            showTotal={true}
+          />
         )}
       </div>
     </div>

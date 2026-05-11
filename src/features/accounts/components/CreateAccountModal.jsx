@@ -109,7 +109,7 @@ export const CreateAccountModal = ({
             </select>
 
             {errors.user && (
-              <p className="text-red-500 text-xs mt-1">
+              <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>
                 {errors.user.message}
               </p>
             )}
@@ -148,7 +148,7 @@ export const CreateAccountModal = ({
             </select>
 
             {errors.type && (
-              <p className="text-red-500 text-xs mt-1">
+              <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>
                 {errors.type.message}
               </p>
             )}

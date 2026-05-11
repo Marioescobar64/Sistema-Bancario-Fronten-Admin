@@ -59,7 +59,7 @@ export const CreateLoanModal = ({ isOpen, users, onClose, onCreate, darkMode = f
                 </option>
               ))}
             </select>
-            {errors.user && <p className="text-red-500 text-xs mt-1">{errors.user.message}</p>}
+            {errors.user && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.user.message}</p>}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -74,7 +74,7 @@ export const CreateLoanModal = ({ isOpen, users, onClose, onCreate, darkMode = f
                 className="w-full px-3 py-2 rounded-lg focus:outline-none"
                 style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.amount ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
               />
-              {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount.message}</p>}
+              {errors.amount && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.amount.message}</p>}
             </div>
 
             <div>
@@ -88,7 +88,7 @@ export const CreateLoanModal = ({ isOpen, users, onClose, onCreate, darkMode = f
                 className="w-full px-3 py-2 rounded-lg focus:outline-none"
                 style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.interestRate ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
               />
-              {errors.interestRate && <p className="text-red-500 text-xs mt-1">{errors.interestRate.message}</p>}
+              {errors.interestRate && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.interestRate.message}</p>}
             </div>
           </div>
 
@@ -102,7 +102,7 @@ export const CreateLoanModal = ({ isOpen, users, onClose, onCreate, darkMode = f
               className="w-full px-3 py-2 rounded-lg focus:outline-none"
               style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.months ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
             />
-            {errors.months && <p className="text-red-500 text-xs mt-1">{errors.months.message}</p>}
+            {errors.months && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.months.message}</p>}
           </div>
 
           {/* BOTONES */}
