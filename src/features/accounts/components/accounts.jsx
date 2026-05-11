@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
   getAccounts,
@@ -12,6 +13,8 @@ import { CreateAccountModal } from './CreateAccountModal';
 import { AccountDetailModal } from './AccountDetailModal';
 
 export const Accounts = () => {
+  const { darkMode = false } = useOutletContext() ?? {};
+  const dm = darkMode;
 
   const [accounts, setAccounts] = useState([]);
   const [users, setUsers] = useState([]);
@@ -165,24 +168,28 @@ export const Accounts = () => {
   });
 
   return (
-    <div className="p-4 md:p-6">
+    <div
+      className="p-4 md:p-6 transition-colors duration-300"
+      style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}
+    >
 
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
 
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">
+          <h1 className="text-3xl font-bold" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
             Gestión de Cuentas
           </h1>
 
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-sm mt-1" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
             Administra las cuentas bancarias del sistema
           </p>
         </div>
 
         <button
           onClick={() => setShowCreateModal(true)}
-          className="bg-green-600 px-4 py-2 rounded text-white hover:bg-green-700 transition font-medium"
+          className="px-4 py-2 rounded text-white transition font-medium"
+          style={{ backgroundColor: dm ? 'var(--color-dark-success)' : 'var(--color-success)' }}
         >
           + Crear Cuenta
         </button>
@@ -190,26 +197,43 @@ export const Accounts = () => {
       </div>
 
       {/* FILTROS */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 mb-4">
+      <div
+        className="rounded-xl shadow-sm p-4 mb-4 transition-colors duration-300"
+        style={{
+          backgroundColor: dm ? 'var(--color-dark-surface)' : 'var(--color-surface)',
+          border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}`,
+        }}
+      >
 
         <input
           type="text"
           placeholder="Buscar por número de cuenta o tipo..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+          className="w-full px-3 py-2 rounded-lg focus:outline-none"
+          style={{
+            backgroundColor: dm ? '#0B1C2C' : '#F4F7FB',
+            color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)',
+            border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}`,
+          }}
         />
 
       </div>
 
       {/* TABLA */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div
+        className="rounded-xl shadow-sm overflow-hidden transition-colors duration-300"
+        style={{
+          backgroundColor: dm ? 'var(--color-dark-surface)' : 'var(--color-surface)',
+          border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}`,
+        }}
+      >
 
         <div className="overflow-x-auto">
 
           <table className="min-w-full text-sm">
 
-            <thead className="bg-gray-50 text-gray-700">
+            <thead style={{ backgroundColor: dm ? 'rgba(27,79,114,0.25)' : 'rgba(214,234,248,0.55)' }}>
 
               <tr>
                 <th className="text-left px-4 py-3 font-semibold">
@@ -244,10 +268,7 @@ export const Accounts = () => {
               {loading ? (
 
                 <tr>
-                  <td
-                    colSpan="6"
-                    className="px-4 py-8 text-center text-gray-500"
-                  >
+                  <td colSpan="6" className="px-4 py-8 text-center" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
                     Cargando cuentas...
                   </td>
                 </tr>
@@ -255,10 +276,7 @@ export const Accounts = () => {
               ) : filteredAccounts.length === 0 ? (
 
                 <tr>
-                  <td
-                    colSpan="6"
-                    className="px-4 py-8 text-center text-gray-500"
-                  >
+                  <td colSpan="6" className="px-4 py-8 text-center" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
                     No hay cuentas para mostrar.
                   </td>
                 </tr>
@@ -269,22 +287,23 @@ export const Accounts = () => {
 
                   <tr
                     key={account._id}
-                    className="border-t hover:bg-gray-50 transition"
+                    className="border-t transition"
+                    style={{ borderTopColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)' }}
                   >
 
-                    <td className="px-4 py-3 font-medium text-gray-800">
+                    <td className="px-4 py-3 font-medium" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
                       {account.accountNumber}
                     </td>
 
-                    <td className="px-4 py-3 text-gray-700">
+                    <td className="px-4 py-3" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
                       {account.type}
                     </td>
 
-                    <td className="px-4 py-3 text-gray-700">
+                    <td className="px-4 py-3" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
                       {account.user?.name || 'Usuario no encontrado'}
                     </td>
 
-                    <td className="px-4 py-3 text-right font-medium text-gray-800">
+                    <td className="px-4 py-3 text-right font-medium" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
 
                       Q {
                         account.balance?.toLocaleString(
@@ -299,13 +318,10 @@ export const Accounts = () => {
 
                     <td className="px-4 py-3">
 
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          account.isActive
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-700'
-                        }`}
-                      >
+                      <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{
+                        backgroundColor: account.isActive ? (dm ? 'rgba(39,174,96,0.18)' : '#DCFCE7') : (dm ? 'rgba(169,204,227,0.14)' : '#E5E7EB'),
+                        color: account.isActive ? (dm ? 'var(--color-dark-success)' : '#15803D') : (dm ? 'var(--color-dark-text-secondary)' : '#4B5563')
+                      }}>
                         {account.isActive
                           ? 'Activa'
                           : 'Inactiva'}
@@ -332,11 +348,11 @@ export const Accounts = () => {
                             !account.isActive
                           )
                         }
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold inline-block ${
-                          account.isActive
-                            ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                            : 'bg-green-100 text-green-700 hover:bg-green-200'
-                        }`}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold inline-block"
+                        style={{
+                          backgroundColor: account.isActive ? (dm ? 'rgba(236,112,99,0.18)' : '#FEE2E2') : (dm ? 'rgba(39,174,96,0.18)' : '#DCFCE7'),
+                          color: account.isActive ? (dm ? '#F5B7B1' : '#B91C1C') : (dm ? 'var(--color-dark-success)' : '#15803D')
+                        }}
                       >
                         {account.isActive
                           ? 'Desactivar'
@@ -359,7 +375,7 @@ export const Accounts = () => {
 
           <div className="flex items-center justify-between px-4 py-3 border-t bg-gray-50">
 
-            <p className="text-xs text-gray-600">
+            <p className="text-xs" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
 
               Página {pagination.currentPage}
               {' '}de{' '}
@@ -382,12 +398,13 @@ export const Accounts = () => {
                   })
                 }
                 disabled={pagination.currentPage === 1}
-                className="px-3 py-1.5 rounded border bg-white text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1.5 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: dm ? '#0B1C2C' : '#FFFFFF', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
               >
                 Anterior
               </button>
 
-              <span className="px-2 py-1.5 text-sm text-gray-700">
+              <span className="px-2 py-1.5 text-sm" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
                 {pagination.currentPage}
                 {' / '}
                 {pagination.totalPages}
@@ -407,7 +424,8 @@ export const Accounts = () => {
                   pagination.currentPage ===
                   pagination.totalPages
                 }
-                className="px-3 py-1.5 rounded border bg-white text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1.5 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: dm ? '#0B1C2C' : '#FFFFFF', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
               >
                 Siguiente
               </button>
@@ -423,6 +441,7 @@ export const Accounts = () => {
         users={users}
         onClose={() => setShowCreateModal(false)}
         onCreate={handleCreateAccount}
+          darkMode={dm}
       />
 
       {selectedAccount && (
@@ -435,6 +454,8 @@ export const Accounts = () => {
             setSelectedAccount(null);
           }}
           onUpdate={handleUpdateAccount}
+          onRefresh={loadAccounts}
+          darkMode={dm}
         />
 
       )}

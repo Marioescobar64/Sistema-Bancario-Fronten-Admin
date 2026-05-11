@@ -4,8 +4,10 @@ import { useForm } from 'react-hook-form';
 export const CreateCardModal = ({
   isOpen,
   onClose,
-  onCreate
+  onCreate,
+  darkMode = false
 }) => {
+  const dm = darkMode;
 
   const {
     register,
@@ -41,7 +43,7 @@ export const CreateCardModal = ({
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 px-3 sm:px-4">
 
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div className="rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden transition-colors duration-300" style={{ backgroundColor: dm ? 'var(--color-dark-surface)' : 'var(--color-surface)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}`, color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
 
         {/* HEADER */}
         <div
@@ -71,7 +73,7 @@ export const CreateCardModal = ({
           {/* PROPIETARIO */}
           <div>
 
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
               Nombre del Propietario *
             </label>
 
@@ -81,11 +83,8 @@ export const CreateCardModal = ({
               {...register('ownerCard', {
                 required: 'El propietario es requerido'
               })}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none ${
-                errors.ownerCard
-                  ? 'border-red-500'
-                  : 'border-gray-300 focus:border-blue-500'
-              }`}
+              className="w-full px-3 py-2 rounded-lg focus:outline-none"
+              style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.ownerCard ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
             />
 
             {errors.ownerCard && (
@@ -97,13 +96,13 @@ export const CreateCardModal = ({
           </div>
 
           {/* INFO */}
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <div className="rounded-xl p-4" style={{ backgroundColor: dm ? 'rgba(93,173,226,0.12)' : '#EFF6FF', border: `1px solid ${dm ? 'var(--color-dark-border)' : '#BFDBFE'}` }}>
 
-            <p className="text-sm font-semibold text-blue-800 mb-2">
+            <p className="text-sm font-semibold mb-2" style={{ color: dm ? 'var(--color-dark-text-primary)' : '#1E3A8A' }}>
               La tarjeta será generada automáticamente
             </p>
 
-            <ul className="text-xs text-blue-700 space-y-1 list-disc pl-4">
+            <ul className="text-xs space-y-1 list-disc pl-4" style={{ color: dm ? 'var(--color-dark-text-secondary)' : '#1D4ED8' }}>
 
               <li>Número de tarjeta</li>
 
@@ -121,7 +120,8 @@ export const CreateCardModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="w-full sm:w-auto px-4 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition font-medium"
+              className="w-full sm:w-auto px-4 py-2 rounded-lg transition font-medium"
+              style={{ backgroundColor: dm ? 'var(--color-dark-background)' : 'var(--color-background)', color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
             >
               Cancelar
             </button>

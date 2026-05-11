@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-export const CreateLoanModal = ({ isOpen, users, onClose, onCreate }) => {
+export const CreateLoanModal = ({ isOpen, users, onClose, onCreate, darkMode = false }) => {
+  const dm = darkMode;
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
   const [loading, setLoading] = useState(false);
 
@@ -24,7 +25,7 @@ export const CreateLoanModal = ({ isOpen, users, onClose, onCreate }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 px-3 sm:px-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div className="rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden transition-colors duration-300" style={{ backgroundColor: dm ? 'var(--color-dark-surface)' : 'var(--color-surface)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}`, color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
 
         {/* HEADER */}
         <div
@@ -43,14 +44,13 @@ export const CreateLoanModal = ({ isOpen, users, onClose, onCreate }) => {
         <form onSubmit={handleSubmit(onSubmit)} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
               Cliente *
             </label>
             <select
               {...register('user', { required: 'El cliente es requerido' })}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none ${
-                errors.user ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'
-              }`}
+              className="w-full px-3 py-2 rounded-lg focus:outline-none"
+              style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.user ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
             >
               <option value="">Seleccionar cliente</option>
               {users.map(user => (
@@ -64,46 +64,43 @@ export const CreateLoanModal = ({ isOpen, users, onClose, onCreate }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
                 Monto (Q) *
               </label>
               <input
                 type="number"
                 step="0.01"
                 {...register('amount', { required: 'El monto es requerido' })}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none ${
-                  errors.amount ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'
-                }`}
+                className="w-full px-3 py-2 rounded-lg focus:outline-none"
+                style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.amount ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
               />
               {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
                 Tasa de Interés (%) *
               </label>
               <input
                 type="number"
                 step="0.01"
                 {...register('interestRate', { required: 'La tasa es requerida' })}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none ${
-                  errors.interestRate ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'
-                }`}
+                className="w-full px-3 py-2 rounded-lg focus:outline-none"
+                style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.interestRate ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
               />
               {errors.interestRate && <p className="text-red-500 text-xs mt-1">{errors.interestRate.message}</p>}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
               Plazo (meses) *
             </label>
             <input
               type="number"
               {...register('months', { required: 'El plazo es requerido' })}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none ${
-                errors.months ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'
-              }`}
+              className="w-full px-3 py-2 rounded-lg focus:outline-none"
+              style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.months ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
             />
             {errors.months && <p className="text-red-500 text-xs mt-1">{errors.months.message}</p>}
           </div>
@@ -113,7 +110,8 @@ export const CreateLoanModal = ({ isOpen, users, onClose, onCreate }) => {
             <button
               type="button"
               onClick={onClose}
-              className="w-full sm:w-auto px-4 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition font-medium"
+              className="w-full sm:w-auto px-4 py-2 rounded-lg transition font-medium"
+              style={{ backgroundColor: dm ? 'var(--color-dark-background)' : 'var(--color-background)', color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
             >
               Cancelar
             </button>

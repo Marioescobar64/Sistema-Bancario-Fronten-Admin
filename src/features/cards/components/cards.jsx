@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 import {
@@ -12,6 +13,8 @@ import { CreateCardModal } from './CreateCardModal';
 import { CardDetailModal } from './CardDetailModal';
 
 export const Cards = () => {
+  const { darkMode = false } = useOutletContext() ?? {};
+  const dm = darkMode;
 
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -158,18 +161,18 @@ export const Cards = () => {
   });
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-4 md:p-6 transition-colors duration-300" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
 
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
 
         <div>
 
-          <h1 className="text-3xl font-bold text-gray-800">
+          <h1 className="text-3xl font-bold" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
             Gestión de Tarjetas
           </h1>
 
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-sm mt-1" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
             Administra las tarjetas bancarias
           </p>
 
@@ -177,7 +180,8 @@ export const Cards = () => {
 
         <button
           onClick={() => setShowCreateModal(true)}
-          className="bg-green-600 px-4 py-2 rounded text-white hover:bg-green-700 transition font-medium"
+          className="px-4 py-2 rounded text-white transition font-medium"
+          style={{ backgroundColor: dm ? 'var(--color-dark-success)' : 'var(--color-success)' }}
         >
           + Emitir Tarjeta
         </button>
@@ -185,7 +189,7 @@ export const Cards = () => {
       </div>
 
       {/* BUSCADOR */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 mb-4">
+      <div className="rounded-xl shadow-sm p-4 mb-4 transition-colors duration-300" style={{ backgroundColor: dm ? 'var(--color-dark-surface)' : 'var(--color-surface)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}>
 
         <input
           type="text"
@@ -194,19 +198,20 @@ export const Cards = () => {
           onChange={(e) =>
             setSearchTerm(e.target.value)
           }
-          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+          className="w-full px-3 py-2 rounded-lg focus:outline-none"
+          style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
         />
 
       </div>
 
       {/* TABLA */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="rounded-xl shadow-sm overflow-hidden transition-colors duration-300" style={{ backgroundColor: dm ? 'var(--color-dark-surface)' : 'var(--color-surface)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}>
 
         <div className="overflow-x-auto">
 
           <table className="min-w-full text-sm">
 
-            <thead className="bg-gray-50 text-gray-700">
+            <thead style={{ backgroundColor: dm ? 'rgba(27,79,114,0.25)' : 'rgba(214,234,248,0.55)' }}>
 
               <tr>
 
@@ -239,10 +244,7 @@ export const Cards = () => {
               {loading ? (
 
                 <tr>
-                  <td
-                    colSpan="5"
-                    className="px-4 py-8 text-center text-gray-500"
-                  >
+                  <td colSpan="5" className="px-4 py-8 text-center" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
                     Cargando tarjetas...
                   </td>
                 </tr>
@@ -250,10 +252,7 @@ export const Cards = () => {
               ) : filteredCards.length === 0 ? (
 
                 <tr>
-                  <td
-                    colSpan="5"
-                    className="px-4 py-8 text-center text-gray-500"
-                  >
+                  <td colSpan="5" className="px-4 py-8 text-center" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
                     No hay tarjetas para mostrar.
                   </td>
                 </tr>
@@ -264,25 +263,26 @@ export const Cards = () => {
 
                   <tr
                     key={card._id}
-                    className="border-t hover:bg-gray-50 transition"
+                    className="border-t transition"
+                    style={{ borderTopColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)' }}
                   >
 
                     {/* NUMERO */}
-                    <td className="px-4 py-3 font-medium text-gray-800">
+                    <td className="px-4 py-3 font-medium" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
 
                       •••• {card.cardNumbers?.slice(-4)}
 
                     </td>
 
                     {/* PROPIETARIO */}
-                    <td className="px-4 py-3 text-gray-700">
+                    <td className="px-4 py-3" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
 
                       {card.ownerCard}
 
                     </td>
 
                     {/* EXPIRACION */}
-                    <td className="px-4 py-3 text-gray-700">
+                    <td className="px-4 py-3" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
 
                       {new Date(
                         card.expirationDate
@@ -294,11 +294,8 @@ export const Cards = () => {
                     <td className="px-4 py-3">
 
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          card.isActive
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-red-100 text-red-700'
-                        }`}
+                        className="px-3 py-1 rounded-full text-xs font-semibold"
+                        style={{ backgroundColor: card.isActive ? (dm ? 'rgba(39,174,96,0.18)' : '#DCFCE7') : (dm ? 'rgba(236,112,99,0.18)' : '#FEE2E2'), color: card.isActive ? (dm ? 'var(--color-dark-success)' : '#15803D') : (dm ? '#F5B7B1' : '#B91C1C') }}
                       >
                         {card.isActive
                           ? 'Activa'
@@ -329,11 +326,8 @@ export const Cards = () => {
                             !card.isActive
                           )
                         }
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold inline-block ${
-                          card.isActive
-                            ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                            : 'bg-green-100 text-green-700 hover:bg-green-200'
-                        }`}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold inline-block"
+                        style={{ backgroundColor: card.isActive ? (dm ? 'rgba(236,112,99,0.18)' : '#FEE2E2') : (dm ? 'rgba(39,174,96,0.18)' : '#DCFCE7'), color: card.isActive ? (dm ? '#F5B7B1' : '#B91C1C') : (dm ? 'var(--color-dark-success)' : '#15803D') }}
                       >
                         {card.isActive
                           ? 'Bloquear'
@@ -356,7 +350,7 @@ export const Cards = () => {
 
           <div className="flex items-center justify-between px-4 py-3 border-t bg-gray-50">
 
-            <p className="text-xs text-gray-600">
+            <p className="text-xs" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
 
               Página {pagination.currentPage}
               {' '}de{' '}
@@ -381,7 +375,8 @@ export const Cards = () => {
                 disabled={
                   pagination.currentPage === 1
                 }
-                className="px-3 py-1.5 rounded border bg-white text-sm disabled:opacity-50"
+                className="px-3 py-1.5 rounded text-sm disabled:opacity-50"
+                style={{ backgroundColor: dm ? '#0B1C2C' : '#FFFFFF', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
               >
                 Anterior
               </button>
@@ -400,7 +395,8 @@ export const Cards = () => {
                   pagination.currentPage ===
                   pagination.totalPages
                 }
-                className="px-3 py-1.5 rounded border bg-white text-sm disabled:opacity-50"
+                className="px-3 py-1.5 rounded text-sm disabled:opacity-50"
+                style={{ backgroundColor: dm ? '#0B1C2C' : '#FFFFFF', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
               >
                 Siguiente
               </button>
@@ -418,6 +414,7 @@ export const Cards = () => {
           setShowCreateModal(false)
         }
         onCreate={handleCreateCard}
+        darkMode={dm}
       />
 
       {/* MODAL DETALLE */}
@@ -426,6 +423,7 @@ export const Cards = () => {
         <CardDetailModal
           isOpen={showDetailModal}
           card={selectedCard}
+          darkMode={dm}
           onClose={() => {
 
             setShowDetailModal(false);

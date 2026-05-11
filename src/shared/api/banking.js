@@ -24,7 +24,7 @@ export const updateUser = async (id, userData) => {
 };
 
 export const changeUserStatus = async (id, isActive) => {
-    const { data } = await axiosAdmin.put(`/users/${id}/status`, { isActive });
+    const { data } = await axiosAdmin.patch(`/users/status/${id}`);
     return data;
 };
 
@@ -52,7 +52,7 @@ export const updateAccount = async (id, accountData) => {
 };
 
 export const changeAccountStatus = async (id, isActive) => {
-    const { data } = await axiosAdmin.put(`/accounts/${id}/status`, { isActive });
+    const { data } = await axiosAdmin.patch(`/accounts/status/${id}`);
     return data;
 };
 
@@ -70,18 +70,37 @@ export const getCardById = async (id) => {
 };
 
 export const createCard = async (cardData) => {
+    // Si es FormData (con imagen), dejar que axios establezca el Content-Type
+    if (cardData instanceof FormData) {
+        const { data } = await axiosAdmin.post("/cards", cardData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return data;
+    }
     const { data } = await axiosAdmin.post("/cards", cardData);
     return data;
 };
 
 export const updateCard = async (id, cardData) => {
+    if (cardData instanceof FormData) {
+        const { data } = await axiosAdmin.put(`/cards/${id}`, cardData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return data;
+    }
     const { data } = await axiosAdmin.put(`/cards/${id}`, cardData);
     return data;
 };
 
 export const changeCardStatus = async (id, isActive) => {
-    const { data } = await axiosAdmin.put(`/cards/${id}/status`, { isActive });
-    return data;
+    // El backend expone endpoints separados para activar/desactivar
+    if (isActive) {
+        const { data } = await axiosAdmin.put(`/cards/${id}/activate`);
+        return data;
+    } else {
+        const { data } = await axiosAdmin.put(`/cards/${id}/deactivate`);
+        return data;
+    }
 };
 
 // ================= TRANSFERS =================
@@ -92,13 +111,21 @@ export const getTransfers = async (page = 1, limit = 10, account = null) => {
     return data;
 };
 
-export const getTransferById = async (id) => {
-    const { data } = await axiosAdmin.get(`/transfers/${id}`);
-    return data;
-};
+// NOTE: backend actualmente no expone GET /transfers/:id — usar getTransfers con filtros.
 
 export const createTransfer = async (transferData) => {
     const { data } = await axiosAdmin.post("/transfers", transferData);
+    return data;
+};
+
+// ================= ACCOUNTS - Money Ops =================
+export const depositMoney = async (accountNumber, amount) => {
+    const { data } = await axiosAdmin.patch(`/accounts/deposit/${accountNumber}`, { amount });
+    return data;
+};
+
+export const withdrawMoney = async (accountNumber, amount) => {
+    const { data } = await axiosAdmin.patch(`/accounts/withdraw/${accountNumber}`, { amount });
     return data;
 };
 
@@ -125,38 +152,39 @@ export const updateLoan = async (id, loanData) => {
     return data;
 };
 
-export const changeLoanStatus = async (id, isActive) => {
-    const { data } = await axiosAdmin.put(`/loans/${id}/status`, { isActive });
+export const changeLoanStatus = async (id, status) => {
+    const { data } = await axiosAdmin.patch(`/loans/status/${id}`, { status });
     return data;
 };
 
 // ================= AUDIT LOGS =================
 export const getAuditLogs = async (page = 1, limit = 10, entity = null, action = null) => {
-    const { data } = await axiosAdmin.get("/audit-logs", {
+    const { data } = await axiosAdmin.get("/auditLogs", {
         params: { page, limit, ...(entity && { entity }), ...(action && { action }) }
     });
     return data;
 };
 
 export const getAuditLogById = async (id) => {
-    const { data } = await axiosAdmin.get(`/audit-logs/${id}`);
+    const { data } = await axiosAdmin.get(`/auditLogs/${id}`);
     return data;
 };
 
 // ================= SUSPICIOUS MOVEMENTS =================
 export const getSuspiciousMovements = async (page = 1, limit = 10, status = null) => {
-    const { data } = await axiosAdmin.get("/suspicious-movements", {
-        params: { page, limit, ...(status && { status }) }
+    const { data } = await axiosAdmin.get("/suspicious", {
+        params: { page, limit, ...(status !== null && { revisada: status }) }
     });
     return data;
 };
 
 export const getSuspiciousMovementById = async (id) => {
-    const { data } = await axiosAdmin.get(`/suspicious-movements/${id}`);
+    const { data } = await axiosAdmin.get(`/suspicious/${id}`);
     return data;
 };
 
-export const updateSuspiciousMovementStatus = async (id, status) => {
-    const { data } = await axiosAdmin.put(`/suspicious-movements/${id}`, { status });
+export const updateSuspiciousMovementStatus = async (id, reviewed) => {
+    const endpoint = reviewed ? `/suspicious/${id}/review` : `/suspicious/${id}/unreview`;
+    const { data } = await axiosAdmin.put(endpoint);
     return data;
 };

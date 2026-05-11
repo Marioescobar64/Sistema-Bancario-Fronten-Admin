@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { getTransfers, getAccounts, createTransfer } from '../../../shared/api/banking';
 import { CreateTransferModal } from './CreateTransferModal';
 
 export const Transfers = () => {
+  const { darkMode = false } = useOutletContext() ?? {};
+  const dm = darkMode;
   const [transfers, setTransfers] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -59,29 +62,30 @@ export const Transfers = () => {
   };
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-4 md:p-6 transition-colors duration-300" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Transferencias</h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <h1 className="text-3xl font-bold" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>Transferencias</h1>
+          <p className="text-sm mt-1" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
             Historial de transferencias entre cuentas
           </p>
         </div>
 
         <button 
           onClick={() => setShowCreateModal(true)}
-          className="bg-green-600 px-4 py-2 rounded text-white hover:bg-green-700 transition font-medium"
+          className="px-4 py-2 rounded text-white transition font-medium"
+          style={{ backgroundColor: dm ? 'var(--color-dark-success)' : 'var(--color-success)' }}
         >
           + Nueva Transferencia
         </button>
       </div>
 
       {/* TABLA */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="rounded-xl shadow-sm overflow-hidden transition-colors duration-300" style={{ backgroundColor: dm ? 'var(--color-dark-surface)' : 'var(--color-surface)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}>
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-gray-50 text-gray-700">
+            <thead style={{ backgroundColor: dm ? 'rgba(27,79,114,0.25)' : 'rgba(214,234,248,0.55)' }}>
               <tr>
                 <th className="text-left px-4 py-3 font-semibold">De</th>
                 <th className="text-left px-4 py-3 font-semibold">Para</th>
@@ -94,32 +98,32 @@ export const Transfers = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="5" className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan="5" className="px-4 py-8 text-center" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
                     Cargando transferencias...
                   </td>
                 </tr>
               ) : transfers.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan="5" className="px-4 py-8 text-center" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
                     No hay transferencias registradas.
                   </td>
                 </tr>
               ) : (
                 transfers.map((transfer) => (
-                  <tr key={transfer._id} className="border-t hover:bg-gray-50 transition">
-                    <td className="px-4 py-3 font-medium text-gray-800">
+                  <tr key={transfer._id} className="border-t transition" style={{ borderTopColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)' }}>
+                    <td className="px-4 py-3 font-medium" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
                       {getAccountNumber(transfer.fromAccount?._id || transfer.fromAccount)}
                     </td>
 
-                    <td className="px-4 py-3 text-gray-700">
+                    <td className="px-4 py-3" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
                       {getAccountNumber(transfer.toAccount?._id || transfer.toAccount)}
                     </td>
 
-                    <td className="px-4 py-3 text-right font-medium text-gray-800">
+                    <td className="px-4 py-3 text-right font-medium" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
                       Q {transfer.amount?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}
                     </td>
 
-                    <td className="px-4 py-3 text-gray-700 text-xs">
+                    <td className="px-4 py-3 text-xs" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
                       {new Date(transfer.createdAt).toLocaleDateString('es-ES')}
                     </td>
 
@@ -138,7 +142,7 @@ export const Transfers = () => {
         {/* PAGINACIÓN */}
         {!loading && transfers.length > 0 && (
           <div className="flex items-center justify-between px-4 py-3 border-t bg-gray-50">
-            <p className="text-xs text-gray-600">
+            <p className="text-xs" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
               Página {pagination.currentPage} de {pagination.totalPages}
             </p>
 
@@ -146,14 +150,16 @@ export const Transfers = () => {
               <button 
                 onClick={() => setPagination({...pagination, currentPage: Math.max(1, pagination.currentPage - 1)})}
                 disabled={pagination.currentPage === 1}
-                className="px-3 py-1.5 rounded border bg-white text-sm disabled:opacity-50"
+                className="px-3 py-1.5 rounded text-sm disabled:opacity-50"
+                style={{ backgroundColor: dm ? '#0B1C2C' : '#FFFFFF', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
               >
                 Anterior
               </button>
               <button 
                 onClick={() => setPagination({...pagination, currentPage: Math.min(pagination.totalPages, pagination.currentPage + 1)})}
                 disabled={pagination.currentPage === pagination.totalPages}
-                className="px-3 py-1.5 rounded border bg-white text-sm disabled:opacity-50"
+                className="px-3 py-1.5 rounded text-sm disabled:opacity-50"
+                style={{ backgroundColor: dm ? '#0B1C2C' : '#FFFFFF', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
               >
                 Siguiente
               </button>
@@ -168,6 +174,7 @@ export const Transfers = () => {
         accounts={accounts}
         onClose={() => setShowCreateModal(false)}
         onCreate={handleCreateTransfer}
+        darkMode={dm}
       />
     </div>
   );

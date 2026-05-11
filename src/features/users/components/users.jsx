@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 import {
@@ -12,6 +13,8 @@ import { CreateUserModal } from './CreateUserModal';
 import { UserDetailModal } from './UserDetailModal';
 
 export const Users = () => {
+  const { darkMode = false } = useOutletContext() ?? {};
+  const dm = darkMode;
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -153,24 +156,28 @@ export const Users = () => {
   }) || [];
 
   return (
-    <div className="p-4 md:p-6">
+    <div
+      className="p-4 md:p-6 transition-colors duration-300"
+      style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}
+    >
 
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
 
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">
+          <h1 className="text-3xl font-bold" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
             Gestión de Usuarios
           </h1>
 
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-sm mt-1" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
             Administra usuarios, consulta su información y cambia sus roles
           </p>
         </div>
 
         <button
           onClick={() => setShowCreateModal(true)}
-          className="bg-green-600 px-4 py-2 rounded text-white hover:bg-green-700 transition font-medium"
+          className="px-4 py-2 rounded text-white transition font-medium"
+          style={{ backgroundColor: dm ? 'var(--color-dark-success)' : 'var(--color-success)' }}
         >
           + Agregar Usuario
         </button>
@@ -178,7 +185,13 @@ export const Users = () => {
       </div>
 
       {/* FILTROS */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 mb-4">
+      <div
+        className="rounded-xl shadow-sm p-4 mb-4 transition-colors duration-300"
+        style={{
+          backgroundColor: dm ? 'var(--color-dark-surface)' : 'var(--color-surface)',
+          border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}`,
+        }}
+      >
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
 
@@ -187,13 +200,23 @@ export const Users = () => {
             placeholder="Buscar por nombre o email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="md:col-span-2 w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+            className="md:col-span-2 w-full px-3 py-2 rounded-lg focus:outline-none"
+            style={{
+              backgroundColor: dm ? '#0B1C2C' : '#F4F7FB',
+              color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)',
+              border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}`,
+            }}
           />
 
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+            className="w-full px-3 py-2 rounded-lg focus:outline-none"
+            style={{
+              backgroundColor: dm ? '#0B1C2C' : '#F4F7FB',
+              color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)',
+              border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}`,
+            }}
           >
             <option value="">
               Todos los roles
@@ -212,13 +235,19 @@ export const Users = () => {
       </div>
 
       {/* TABLA */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div
+        className="rounded-xl shadow-sm overflow-hidden transition-colors duration-300"
+        style={{
+          backgroundColor: dm ? 'var(--color-dark-surface)' : 'var(--color-surface)',
+          border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}`,
+        }}
+      >
 
         <div className="overflow-x-auto">
 
           <table className="min-w-full text-sm">
 
-            <thead className="bg-gray-50 text-gray-700">
+            <thead style={{ backgroundColor: dm ? 'rgba(27,79,114,0.25)' : 'rgba(214,234,248,0.55)', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
 
               <tr>
 
@@ -251,10 +280,7 @@ export const Users = () => {
               {loading ? (
 
                 <tr>
-                  <td
-                    colSpan="5"
-                    className="px-4 py-8 text-center text-gray-500"
-                  >
+                  <td colSpan="5" className="px-4 py-8 text-center" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
                     Cargando usuarios...
                   </td>
                 </tr>
@@ -262,10 +288,7 @@ export const Users = () => {
               ) : filteredUsers.length === 0 ? (
 
                 <tr>
-                  <td
-                    colSpan="5"
-                    className="px-4 py-8 text-center text-gray-500"
-                  >
+                  <td colSpan="5" className="px-4 py-8 text-center" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
                     No hay usuarios para mostrar.
                   </td>
                 </tr>
@@ -276,24 +299,24 @@ export const Users = () => {
 
                   <tr
                     key={user._id}
-                    className="border-t hover:bg-gray-50 transition"
+                    className="border-t transition"
+                    style={{ borderTopColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)' }}
                   >
 
-                    <td className="px-4 py-3 font-medium text-gray-800">
+                    <td className="px-4 py-3 font-medium" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
                       {user?.name || '-'}
                     </td>
 
-                    <td className="px-4 py-3 text-gray-700">
+                    <td className="px-4 py-3" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
                       {user?.email || '-'}
                     </td>
 
                     <td className="px-4 py-3">
 
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        user?.role === 'ADMIN'
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-blue-100 text-blue-700'
-                      }`}>
+                      <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{
+                        backgroundColor: user?.role === 'ADMIN' ? (dm ? 'rgba(236,112,99,0.18)' : '#FEE2E2') : (dm ? 'rgba(93,173,226,0.18)' : '#DBEAFE'),
+                        color: user?.role === 'ADMIN' ? (dm ? '#F5B7B1' : '#B91C1C') : (dm ? 'var(--color-dark-primary)' : 'var(--color-primary)')
+                      }}>
 
                         {user?.role || 'USER'}
 
@@ -303,11 +326,10 @@ export const Users = () => {
 
                     <td className="px-4 py-3">
 
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        user?.isActive
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-gray-100 text-gray-700'
-                      }`}>
+                      <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{
+                        backgroundColor: user?.isActive ? (dm ? 'rgba(39,174,96,0.18)' : '#DCFCE7') : (dm ? 'rgba(169,204,227,0.14)' : '#E5E7EB'),
+                        color: user?.isActive ? (dm ? 'var(--color-dark-success)' : '#15803D') : (dm ? 'var(--color-dark-text-secondary)' : '#4B5563')
+                      }}>
 
                         {user?.isActive
                           ? 'Activo'
@@ -324,7 +346,8 @@ export const Users = () => {
                           setSelectedUser(user);
                           setShowDetailModal(true);
                         }}
-                        className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 inline-block"
+                        className="px-3 py-1.5 rounded-lg text-white text-xs font-semibold inline-block"
+                        style={{ backgroundColor: dm ? 'var(--color-dark-primary)' : 'var(--color-primary)' }}
                       >
                         Ver
                       </button>
@@ -336,11 +359,11 @@ export const Users = () => {
                             !user.isActive
                           )
                         }
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold inline-block ${
-                          user?.isActive
-                            ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                            : 'bg-green-100 text-green-700 hover:bg-green-200'
-                        }`}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold inline-block"
+                        style={{
+                          backgroundColor: user?.isActive ? (dm ? 'rgba(236,112,99,0.18)' : '#FEE2E2') : (dm ? 'rgba(39,174,96,0.18)' : '#DCFCE7'),
+                          color: user?.isActive ? (dm ? '#F5B7B1' : '#B91C1C') : (dm ? 'var(--color-dark-success)' : '#15803D')
+                        }}
                       >
 
                         {user?.isActive
@@ -366,7 +389,7 @@ export const Users = () => {
 
           <div className="flex items-center justify-between px-4 py-3 border-t bg-gray-50">
 
-            <p className="text-xs text-gray-600">
+            <p className="text-xs" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
               Página {pagination.currentPage} de {pagination.totalPages} ({pagination.total} usuarios)
             </p>
 
@@ -383,12 +406,13 @@ export const Users = () => {
                   })
                 }
                 disabled={pagination.currentPage === 1}
-                className="px-3 py-1.5 rounded border bg-white text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1.5 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: dm ? '#0B1C2C' : '#FFFFFF', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
               >
                 Anterior
               </button>
 
-              <span className="px-2 py-1.5 text-sm text-gray-700">
+              <span className="px-2 py-1.5 text-sm" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
                 {pagination.currentPage} / {pagination.totalPages}
               </span>
 
@@ -403,7 +427,8 @@ export const Users = () => {
                   })
                 }
                 disabled={pagination.currentPage === pagination.totalPages}
-                className="px-3 py-1.5 rounded border bg-white text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1.5 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: dm ? '#0B1C2C' : '#FFFFFF', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
               >
                 Siguiente
               </button>
@@ -419,6 +444,7 @@ export const Users = () => {
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onCreate={handleCreateUser}
+        darkMode={dm}
       />
 
       {selectedUser && (
@@ -431,6 +457,7 @@ export const Users = () => {
             setSelectedUser(null);
           }}
           onUpdate={handleUpdateUser}
+          darkMode={dm}
         />
 
       )}
