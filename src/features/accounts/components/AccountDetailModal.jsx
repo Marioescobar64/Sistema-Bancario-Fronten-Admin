@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { depositMoney, withdrawMoney } from '../../../shared/api/banking';
 
 export const AccountDetailModal = ({ isOpen, account, onClose, onUpdate, onRefresh, darkMode = false }) => {
-  const { register, handleSubmit, formState: { errors }, reset, watch } = useForm({
+  const { register, handleSubmit, reset } = useForm({
     defaultValues: account
   });
   const [loading, setLoading] = useState(false);

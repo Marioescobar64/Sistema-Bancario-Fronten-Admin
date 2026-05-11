@@ -35,11 +35,6 @@ export const Transfers = () => {
   const [accounts, setAccounts] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  useEffect(() => {
-    loadItems();
-    loadAccounts();
-  }, [pagination.currentPage]);
-
   const loadAccounts = async () => {
     try {
       const response = await getAccounts(1, 100);
@@ -48,6 +43,14 @@ export const Transfers = () => {
       console.error('Error al cargar cuentas:', error);
     }
   };
+
+  useEffect(() => {
+    loadAccounts();
+  }, []);
+
+  useEffect(() => {
+    loadItems();
+  }, [pagination.currentPage, loadItems]);
 
   const handleCreateTransfer = async (transferData) => {
     try {

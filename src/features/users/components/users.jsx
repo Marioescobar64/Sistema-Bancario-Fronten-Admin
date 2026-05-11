@@ -48,7 +48,7 @@ export const Users = () => {
 
   useEffect(() => {
     loadItems();
-  }, [pagination.currentPage]);
+  }, [pagination.currentPage, loadItems]);
 
   const handleCreateUser = async (userData) => {
     try {
@@ -78,7 +78,7 @@ export const Users = () => {
       await changeUserStatus(userId, isActive);
       toast.success(isActive ? 'Usuario activado' : 'Usuario desactivado');
       await loadItems();
-    } catch (error) {
+    } catch {
       toast.error('Error al cambiar estado del usuario');
     }
   };

@@ -33,18 +33,18 @@ export const SuspiciousMovements = () => {
   useEffect(() => {
     resetPage();
     loadItems();
-  }, [filterStatus]);
+  }, [filterStatus, loadItems, resetPage]);
 
   useEffect(() => {
     loadItems();
-  }, [pagination.currentPage]);
+  }, [pagination.currentPage, loadItems]);
 
   const handleUpdateStatus = async (movementId, newStatus) => {
     try {
       await updateSuspiciousMovementStatus(movementId, newStatus);
       toast.success('Estado actualizado');
       await loadItems();
-    } catch (error) {
+    } catch {
       toast.error('Error al actualizar estado');
     }
   };

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 
 export const UserDetailModal = ({ isOpen, user, onClose, onUpdate, darkMode = false }) => {
   const dm = darkMode;
-  const { register, handleSubmit, formState: { errors }, reset, watch } = useForm({
+  const { register, handleSubmit, reset } = useForm({
     defaultValues: user
   });
   const [loading, setLoading] = useState(false);

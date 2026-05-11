@@ -23,7 +23,7 @@ export const updateUser = async (id, userData) => {
     return data;
 };
 
-export const changeUserStatus = async (id, isActive) => {
+export const changeUserStatus = async (id) => {
     const { data } = await axiosAdmin.patch(`/users/status/${id}`);
     return data;
 };
@@ -51,7 +51,7 @@ export const updateAccount = async (id, accountData) => {
     return data;
 };
 
-export const changeAccountStatus = async (id, isActive) => {
+export const changeAccountStatus = async (id) => {
     const { data } = await axiosAdmin.patch(`/accounts/status/${id}`);
     return data;
 };

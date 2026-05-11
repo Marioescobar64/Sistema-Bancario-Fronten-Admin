@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
 import { getAuditLogs } from '../../../shared/api/banking';
 
 import { useDarkMode, usePaginatedList } from '../../../shared/hooks';
@@ -34,11 +33,11 @@ export const AuditLogs = () => {
   useEffect(() => {
     resetPage();
     loadItems();
-  }, [filterEntity, filterAction]);
+  }, [filterEntity, filterAction, loadItems, resetPage]);
 
   useEffect(() => {
     loadItems();
-  }, [pagination.currentPage]);
+  }, [pagination.currentPage, loadItems]);
 
   const getActionColors = (action) => {
     const colors = {

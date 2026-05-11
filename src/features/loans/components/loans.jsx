@@ -38,19 +38,6 @@ export const Loans = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [statusDrafts, setStatusDrafts] = useState({});
 
-  useEffect(() => {
-    loadItems();
-    loadUsers();
-    // Initialize statusDrafts with current statuses
-    const drafts = {};
-    loans.forEach(loan => {
-      if (!drafts[loan._id]) {
-        drafts[loan._id] = loan.status;
-      }
-    });
-    setStatusDrafts(drafts);
-  }, [pagination.currentPage]);
-
   const loadUsers = async () => {
     try {
       const response = await getUsers(1, 100);
@@ -59,6 +46,25 @@ export const Loans = () => {
       console.error('Error al cargar usuarios:', error);
     }
   };
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  useEffect(() => {
+    // Initialize statusDrafts with current statuses
+    const drafts = {};
+    loans.forEach(loan => {
+      if (!drafts[loan._id]) {
+        drafts[loan._id] = loan.status;
+      }
+    });
+    setStatusDrafts(drafts);
+  }, [loans]);
+
+  useEffect(() => {
+    loadItems();
+  }, [pagination.currentPage, loadItems]);
 
   const handleCreateLoan = async (loanData) => {
     try {

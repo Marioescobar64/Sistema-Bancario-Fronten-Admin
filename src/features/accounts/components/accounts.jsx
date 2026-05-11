@@ -46,11 +46,6 @@ export const Accounts = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
 
-  useEffect(() => {
-    loadItems();
-    loadUsers();
-  }, [pagination.currentPage]);
-
   const loadUsers = async () => {
     try {
       const response = await getUsers(1, 100);
@@ -60,6 +55,14 @@ export const Accounts = () => {
       setUsers([]);
     }
   };
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  useEffect(() => {
+    loadItems();
+  }, [pagination.currentPage, loadItems]);
 
   const handleCreateAccount = async (accountData) => {
     try {
@@ -79,17 +82,17 @@ export const Accounts = () => {
       toast.success('Cuenta actualizada exitosamente');
       setShowDetailModal(false);
       await loadItems();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Error al actualizar cuenta');
+    } catch {
+      toast.error('Error al actualizar cuenta');
     }
   };
 
   const handleChangeStatus = async (accountId, isActive) => {
     try {
-      await changeAccountStatus(accountId, isActive);
+      await changeAccountStatus(accountId);
       toast.success(isActive ? 'Cuenta activada' : 'Cuenta desactivada');
       await loadItems();
-    } catch (error) {
+    } catch {
       toast.error('Error al cambiar estado de la cuenta');
     }
   };

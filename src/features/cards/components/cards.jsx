@@ -47,7 +47,7 @@ export const Cards = () => {
 
   useEffect(() => {
     loadItems();
-  }, [pagination.currentPage]);
+  }, [pagination.currentPage, loadItems]);
 
   const handleCreateCard = async (cardData) => {
     try {
@@ -76,7 +76,7 @@ export const Cards = () => {
 
   const handleChangeStatus = async (cardId, isActive) => {
     try {
-      await changeCardStatus(cardId, isActive);
+      await changeCardStatus(cardId);
       toast.success(isActive ? 'Tarjeta activada' : 'Tarjeta desactivada');
       await loadItems();
     } catch (error) {
@@ -85,14 +85,27 @@ export const Cards = () => {
     }
   };
 
+  const formatCardNumber = (num = '') => {
+    const s = String(num).replace(/\s/g, '');
+    return s.replace(/(.{4})/g, '$1 ').trim();
+  };
+
+  const formatDate = (date) => {
+    if (!date) return '-';
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   const filteredCards = (cards || []).filter(card => {
-    return !searchTerm || card.cardNumber?.toLowerCase().includes(searchTerm.toLowerCase());
+    return !searchTerm || card.cardNumbers?.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   const columns = [
     { key: 'number', label: 'Número de Tarjeta' },
-    { key: 'type', label: 'Tipo' },
-    { key: 'holder', label: 'Titular' },
+    { key: 'holder', label: 'Propietario' },
     { key: 'expiry', label: 'Vencimiento' },
     { key: 'status', label: 'Estado' },
     { key: 'actions', label: 'Acciones', className: 'text-right' }
@@ -119,32 +132,34 @@ export const Cards = () => {
             <TableHeader columns={columns} />
             <tbody>
               {loading ? (
-                <LoadingSpinner colSpan={6} message="Cargando tarjetas..." />
+                <LoadingSpinner colSpan={5} message="Cargando tarjetas..." />
               ) : filteredCards.length === 0 ? (
-                <EmptyState colSpan={6} message="No hay tarjetas para mostrar." />
+                <EmptyState colSpan={5} message="No hay tarjetas para mostrar." />
               ) : (
                 filteredCards.map(card => (
                   <tr key={card._id} className="border-t transition" style={getTableRowStyle(dm)}>
-                    <td className="px-4 py-3 font-medium" style={getPrimaryTextStyle(dm)}>{card.cardNumber || '-'}</td>
+                    <td className="px-4 py-3 font-medium" style={getPrimaryTextStyle(dm)}>{formatCardNumber(card.cardNumbers) || '-'}</td>
                     <td className="px-4 py-3" style={getSecondaryTextStyle(dm)}>{card.ownerCard || '-'}</td>
-                    <td className="px-4 py-3" style={getSecondaryTextStyle(dm)}>{card.expirationDate || '-'}</td>
+                    <td className="px-4 py-3" style={getSecondaryTextStyle(dm)}>{formatDate(card.expirationDate)}</td>
                     <td className="px-4 py-3">
                       <StatusBadge isActive={card?.isActive} activeLabel="Activa" inactiveLabel="Inactiva" />
                     </td>
-                    <td className="px-4 py-3 text-right space-x-2">
-                      <ActionButton
-                        label="Ver"
-                        onClick={() => {
-                          setSelectedCard(card);
-                          setShowDetailModal(true);
-                        }}
-                        variant="blue"
-                      />
-                      <ActionButton
-                        label={card?.isActive ? 'Desactivar' : 'Activar'}
-                        onClick={() => handleChangeStatus(card._id, !card.isActive)}
-                        variant={card?.isActive ? 'danger' : 'success'}
-                      />
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex justify-end gap-2">
+                        <ActionButton
+                          label="Ver"
+                          onClick={() => {
+                            setSelectedCard(card);
+                            setShowDetailModal(true);
+                          }}
+                          variant="blue"
+                        />
+                        <ActionButton
+                          label={card?.isActive ? 'Desactivar' : 'Activar'}
+                          onClick={() => handleChangeStatus(card._id, !card.isActive)}
+                          variant={card?.isActive ? 'danger' : 'success'}
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))

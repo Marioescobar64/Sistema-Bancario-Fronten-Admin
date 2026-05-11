@@ -28,7 +28,7 @@ import {
   EmptyState 
 } from '../../../shared/components';
 
-import { getSurfaceStyle, getPrimaryTextStyle, getSecondaryTextStyle, getPrimaryButtonStyle } from '../../../shared/utils/styleHelpers';
+import { getSurfaceStyle, getPrimaryTextStyle, getSecondaryTextStyle } from '../../../shared/utils/styleHelpers';
 
 import { CreateUserModal } from './CreateUserModal';
 import { UserDetailModal } from './UserDetailModal';
@@ -55,7 +55,7 @@ export const UsersOptimized = () => {
   // Auto-load datos al cambiar página
   useEffect(() => {
     loadItems();
-  }, [pagination.currentPage]);
+  }, [pagination.currentPage, loadItems]);
 
   // Filtrado local
   const filteredUsers = (users || []).filter(user => {
@@ -97,7 +97,7 @@ export const UsersOptimized = () => {
       await changeUserStatus(userId, isActive);
       toast.success(isActive ? 'Usuario activado' : 'Usuario desactivado');
       await loadItems();
-    } catch (error) {
+    } catch {
       toast.error('Error al cambiar estado del usuario');
     }
   };
