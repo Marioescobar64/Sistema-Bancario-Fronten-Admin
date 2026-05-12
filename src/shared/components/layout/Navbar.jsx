@@ -1,7 +1,7 @@
 import { useAuthStore } from "../../../features/auth/authStore.js";
 import { useNavigate } from "react-router-dom";
-import logoLight from "../../../assets/img/veraff-light.png";
-import logoDark from "../../../assets/img/veraff-dark.png";
+import logoLight from "../../../assets/img/veraff-light-icon.png";
+import logoDark from "../../../assets/img/veraff-dark-icon.png";
 
 export const Navbar = ({ darkMode, setDarkMode, sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
