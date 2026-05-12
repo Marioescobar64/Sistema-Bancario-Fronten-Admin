@@ -102,7 +102,7 @@ export const Users = () => {
   return (
     <div className="p-4 md:p-6 transition-colors duration-300" style={getPrimaryTextStyle(dm)}>
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold" style={getPrimaryTextStyle(dm)}>
             Gestión de Usuarios
@@ -145,13 +145,13 @@ export const Users = () => {
               ) : (
                 filteredUsers.map(user => (
                   <tr key={user._id} className="border-t transition" style={getTableRowStyle(dm)}>
-                    <td className="px-4 py-3 font-medium" style={getPrimaryTextStyle(dm)}>
+                    <td className="px-6 py-4 md:px-4 md:py-3 font-medium" style={getPrimaryTextStyle(dm)}>
                       {user?.name || '-'}
                     </td>
-                    <td className="px-4 py-3" style={getSecondaryTextStyle(dm)}>
+                    <td className="px-6 py-4 md:px-4 md:py-3" style={getSecondaryTextStyle(dm)}>
                       {user?.email || '-'}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-6 py-4 md:px-4 md:py-3">
                       <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{
                         backgroundColor: user?.role === 'ADMIN' ? (dm ? 'rgba(236,112,99,0.18)' : '#FEE2E2') : (dm ? 'rgba(93,173,226,0.18)' : '#DBEAFE'),
                         color: user?.role === 'ADMIN' ? (dm ? '#F5B7B1' : '#B91C1C') : (dm ? 'var(--color-dark-primary)' : 'var(--color-primary)')
@@ -159,10 +159,10 @@ export const Users = () => {
                         {user?.role || 'USER'}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-6 py-4 md:px-4 md:py-3">
                       <StatusBadge isActive={user?.isActive} activeLabel="Activo" inactiveLabel="Inactivo" />
                     </td>
-                    <td className="px-4 py-3 text-right space-x-2">
+                    <td className="px-6 py-4 md:px-4 md:py-3 text-right space-x-2">
                       <ActionButton
                         label="Ver"
                         onClick={() => {

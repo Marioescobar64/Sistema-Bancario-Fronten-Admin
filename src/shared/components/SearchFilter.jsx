@@ -19,7 +19,7 @@ export const SearchFilter = ({
 
   return (
     <div
-      className="rounded-xl shadow-sm p-4 mb-4 transition-colors duration-300"
+      className="rounded-xl shadow-sm p-6 mb-6 md:p-4 md:mb-4 transition-colors duration-300"
       style={getSurfaceStyle(dm)}
     >
       <div className="flex flex-col gap-3">

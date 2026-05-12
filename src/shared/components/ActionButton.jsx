@@ -50,7 +50,7 @@ export const ActionButton = ({
     <button
       onClick={onClick}
       disabled={loading || disabled}
-      className={`px-3 py-1.5 rounded-lg text-xs font-semibold inline-block disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+      className={`px-4 py-2 md:px-3 md:py-1.5 rounded-lg text-xs font-semibold inline-block disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 ${className}`}
       style={getStyle()}
     >
       {loading ? 'Cargando...' : label}

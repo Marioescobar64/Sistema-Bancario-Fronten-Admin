@@ -115,7 +115,7 @@ export const Accounts = () => {
   return (
     <div className="p-4 md:p-6 transition-colors duration-300" style={getPrimaryTextStyle(dm)}>
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold" style={getPrimaryTextStyle(dm)}>Gestión de Cuentas</h1>
           <p className="text-sm mt-1" style={getSecondaryTextStyle(dm)}>Administra las cuentas bancarias del sistema</p>
@@ -127,7 +127,7 @@ export const Accounts = () => {
       <SearchFilter value={searchTerm} onChange={setSearchTerm} placeholder="Buscar por número de cuenta o tipo..." />
 
       {/* TABLA */}
-      <div className="rounded-xl shadow-sm overflow-hidden transition-colors duration-300" style={getSurfaceStyle(dm)}>
+      <div className="rounded-xl shadow-sm overflow-hidden transition-colors duration-300 mb-6" style={getSurfaceStyle(dm)}>
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <TableHeader columns={columns} />
@@ -139,16 +139,16 @@ export const Accounts = () => {
               ) : (
                 filteredAccounts.map(account => (
                   <tr key={account._id} className="border-t transition" style={getTableRowStyle(dm)}>
-                    <td className="px-4 py-3 font-medium" style={getPrimaryTextStyle(dm)}>{account.accountNumber}</td>
-                    <td className="px-4 py-3" style={getSecondaryTextStyle(dm)}>{account.type}</td>
-                    <td className="px-4 py-3" style={getSecondaryTextStyle(dm)}>{account.user?.name || 'Usuario no encontrado'}</td>
-                    <td className="px-4 py-3 text-right font-medium" style={getPrimaryTextStyle(dm)}>
+                    <td className="px-6 py-4 md:px-4 md:py-3 font-medium" style={getPrimaryTextStyle(dm)}>{account.accountNumber}</td>
+                    <td className="px-6 py-4 md:px-4 md:py-3" style={getSecondaryTextStyle(dm)}>{account.type}</td>
+                    <td className="px-6 py-4 md:px-4 md:py-3" style={getSecondaryTextStyle(dm)}>{account.user?.name || 'Usuario no encontrado'}</td>
+                    <td className="px-6 py-4 md:px-4 md:py-3 text-right font-medium" style={getPrimaryTextStyle(dm)}>
                       Q {account.balance?.toLocaleString('es-ES', { minimumFractionDigits: 2 }) || '0.00'}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-6 py-4 md:px-4 md:py-3">
                       <StatusBadge isActive={account?.isActive} activeLabel="Activa" inactiveLabel="Inactiva" />
                     </td>
-                    <td className="px-4 py-3 text-right space-x-2">
+                    <td className="px-6 py-4 md:px-4 md:py-3 text-right space-x-2">
                       <ActionButton
                         label="Ver"
                         onClick={() => {

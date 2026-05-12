@@ -14,7 +14,7 @@ export const LoadingSpinner = ({ message = 'Cargando...', colSpan = 6 }) => {
     <tr>
       <td 
         colSpan={colSpan} 
-        className="px-4 py-8 text-center"
+        className="px-6 py-12 md:px-4 md:py-8 text-center"
         style={getSecondaryTextStyle(dm)}
       >
         {message}
@@ -35,7 +35,7 @@ export const EmptyState = ({ message = 'No hay datos para mostrar.', colSpan = 6
     <tr>
       <td 
         colSpan={colSpan} 
-        className="px-4 py-8 text-center"
+        className="px-6 py-12 md:px-4 md:py-8 text-center"
         style={getSecondaryTextStyle(dm)}
       >
         {message}

@@ -115,7 +115,7 @@ export const Loans = () => {
   return (
     <div className="p-4 md:p-6 transition-colors duration-300" style={getPrimaryTextStyle(dm)}>
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold" style={getPrimaryTextStyle(dm)}>Gestión de Préstamos</h1>
           <p className="text-sm mt-1" style={getSecondaryTextStyle(dm)}>Administra los préstamos otorgados a clientes</p>
@@ -139,21 +139,21 @@ export const Loans = () => {
               ) : (
                 filteredLoans.map(loan => (
                   <tr key={loan._id} className="border-t transition" style={getTableRowStyle(dm)}>
-                    <td className="px-4 py-3 font-medium" style={getPrimaryTextStyle(dm)}>{loan.loanCode}</td>
-                    <td className="px-4 py-3" style={getSecondaryTextStyle(dm)}>{getUserName(loan.user)}</td>
-                    <td className="px-4 py-3 text-right font-medium" style={getPrimaryTextStyle(dm)}>
+                    <td className="px-6 py-4 md:px-4 md:py-3 font-medium" style={getPrimaryTextStyle(dm)}>{loan.loanCode}</td>
+                    <td className="px-6 py-4 md:px-4 md:py-3" style={getSecondaryTextStyle(dm)}>{getUserName(loan.user)}</td>
+                    <td className="px-6 py-4 md:px-4 md:py-3 text-right font-medium" style={getPrimaryTextStyle(dm)}>
                       Q {loan.amount?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}
                     </td>
-                    <td className="px-4 py-3 text-right" style={getSecondaryTextStyle(dm)}>
+                    <td className="px-6 py-4 md:px-4 md:py-3 text-right" style={getSecondaryTextStyle(dm)}>
                       Q {loan.monthlyPayment?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-6 py-4 md:px-4 md:py-3">
                       <StatusBadge isActive={loan?.isActive} activeLabel="Activo" inactiveLabel="Cancelado" />
                     </td>
-                    <td className="px-4 py-3 text-xs" style={getSecondaryTextStyle(dm)}>
+                    <td className="px-6 py-4 md:px-4 md:py-3 text-xs" style={getSecondaryTextStyle(dm)}>
                       {new Date(loan.createdAt).toLocaleDateString('es-ES')}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-6 py-4 md:px-4 md:py-3">
                       <div className="flex items-center gap-2">
                         <select
                           value={statusDrafts[loan._id] || loan.status}

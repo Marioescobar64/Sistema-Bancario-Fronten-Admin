@@ -67,13 +67,15 @@ const NAV_ITEMS = [
   },
 ];
 
-export const Sidebar = ({ darkMode = false }) => {
+export const Sidebar = ({ darkMode = false, isOpen, setIsOpen }) => {
   const location = useLocation();
   const dm = darkMode;
 
+  const activeIndex = NAV_ITEMS.findIndex(item => location.pathname === item.to);
+
   return (
     <aside
-      className="w-56 min-h-[calc(100vh-4rem)] flex flex-col transition-colors duration-300"
+      className={`fixed md:relative top-16 md:top-0 left-0 w-56 h-[calc(100vh-4rem)] md:h-auto z-40 transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
       style={{
         backgroundColor: dm ? "var(--color-dark-surface)" : "var(--color-surface)",
         borderRight: `1px solid ${dm ? "var(--color-dark-border)" : "var(--color-border)"}`,
@@ -88,7 +90,7 @@ export const Sidebar = ({ darkMode = false }) => {
           Navegación
         </p>
 
-        <ul className="space-y-0.5">
+        <ul className="space-y-0.5 relative">
           {NAV_ITEMS.map((item) => {
             const isActive = location.pathname === item.to;
 
@@ -96,6 +98,7 @@ export const Sidebar = ({ darkMode = false }) => {
               <li key={item.to}>
                 <Link
                   to={item.to}
+                  onClick={() => setIsOpen(false)}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200"
                   style={{
                     backgroundColor: isActive
@@ -104,9 +107,6 @@ export const Sidebar = ({ darkMode = false }) => {
                     color: isActive
                       ? dm ? "var(--color-dark-primary)" : "var(--color-primary)"
                       : dm ? "var(--color-dark-text-primary)" : "var(--color-text-primary)",
-                    borderLeft: isActive
-                      ? `2px solid ${dm ? "var(--color-dark-primary)" : "var(--color-primary)"}`
-                      : "2px solid transparent",
                     borderRadius: isActive ? "0 8px 8px 0" : "8px",
                     fontWeight: isActive ? "600" : "400",
                   }}
@@ -133,6 +133,14 @@ export const Sidebar = ({ darkMode = false }) => {
               </li>
             );
           })}
+          <div
+            className="absolute left-0 top-1 w-0.5 transition-all duration-300 ease-in-out"
+            style={{
+              height: '32px',
+              backgroundColor: dm ? "var(--color-dark-primary)" : "var(--color-primary)",
+              transform: `translateY(${(activeIndex >= 0 ? activeIndex : 0) * 38}px)`,
+            }}
+          />
         </ul>
       </nav>
 

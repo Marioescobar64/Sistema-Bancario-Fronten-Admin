@@ -21,7 +21,7 @@ export const TableHeader = ({ columns, onClick }) => {
         {columns.map((col) => (
           <th
             key={col.key}
-            className={`text-left px-4 py-3 font-semibold ${col.className || ''}`}
+            className={`text-left px-6 py-4 md:px-4 md:py-3 font-semibold ${col.className || ''}`}
             onClick={() => onClick?.(col.key)}
             style={{ cursor: onClick ? 'pointer' : 'default' }}
           >

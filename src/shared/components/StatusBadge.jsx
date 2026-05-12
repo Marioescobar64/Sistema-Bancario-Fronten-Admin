@@ -17,7 +17,7 @@ export const StatusBadge = ({
 
   return (
     <span
-      className="px-3 py-1 rounded-full text-xs font-semibold"
+      className="px-4 py-1.5 md:px-3 md:py-1 rounded-full text-xs font-semibold"
       style={getStatusBadgeStyle(isActive, dm)}
     >
       {isActive ? activeLabel : inactiveLabel}

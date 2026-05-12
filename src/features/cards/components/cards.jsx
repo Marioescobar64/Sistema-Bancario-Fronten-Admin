@@ -114,7 +114,7 @@ export const Cards = () => {
   return (
     <div className="p-4 md:p-6 transition-colors duration-300" style={getPrimaryTextStyle(dm)}>
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold" style={getPrimaryTextStyle(dm)}>Gestión de Tarjetas</h1>
           <p className="text-sm mt-1" style={getSecondaryTextStyle(dm)}>Administra las tarjetas bancarias</p>
@@ -138,13 +138,13 @@ export const Cards = () => {
               ) : (
                 filteredCards.map(card => (
                   <tr key={card._id} className="border-t transition" style={getTableRowStyle(dm)}>
-                    <td className="px-4 py-3 font-medium" style={getPrimaryTextStyle(dm)}>{formatCardNumber(card.cardNumbers) || '-'}</td>
-                    <td className="px-4 py-3" style={getSecondaryTextStyle(dm)}>{card.ownerCard || '-'}</td>
-                    <td className="px-4 py-3" style={getSecondaryTextStyle(dm)}>{formatDate(card.expirationDate)}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-6 py-4 md:px-4 md:py-3 font-medium" style={getPrimaryTextStyle(dm)}>{formatCardNumber(card.cardNumbers) || '-'}</td>
+                    <td className="px-6 py-4 md:px-4 md:py-3" style={getSecondaryTextStyle(dm)}>{card.ownerCard || '-'}</td>
+                    <td className="px-6 py-4 md:px-4 md:py-3" style={getSecondaryTextStyle(dm)}>{formatDate(card.expirationDate)}</td>
+                    <td className="px-6 py-4 md:px-4 md:py-3">
                       <StatusBadge isActive={card?.isActive} activeLabel="Activa" inactiveLabel="Inactiva" />
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-6 py-4 md:px-4 md:py-3 text-right">
                       <div className="flex justify-end gap-2">
                         <ActionButton
                           label="Ver"

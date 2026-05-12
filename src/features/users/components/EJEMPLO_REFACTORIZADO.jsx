@@ -113,7 +113,7 @@ export const UsersOptimized = () => {
   return (
     <div className="p-4 md:p-6 transition-colors duration-300" style={getPrimaryTextStyle(dm)}>
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold" style={getPrimaryTextStyle(dm)}>
             Gestión de Usuarios

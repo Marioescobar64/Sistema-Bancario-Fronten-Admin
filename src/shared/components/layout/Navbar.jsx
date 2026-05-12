@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import logoLight from "../../../assets/img/veraff-light.png";
 import logoDark from "../../../assets/img/veraff-dark.png";
 
-export const Navbar = ({ darkMode, setDarkMode }) => {
+export const Navbar = ({ darkMode, setDarkMode, sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
   const logout = useAuthStore((state) => state.logout);
 
@@ -16,12 +16,38 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
 
   return (
     <nav
-      className="sticky top-0 z-50 h-16 px-6 flex items-center justify-between transition-colors duration-300"
+      className="sticky top-0 z-50 h-16 px-4 md:px-6 flex items-center justify-between transition-colors duration-300"
       style={{
         backgroundColor: dm ? "var(--color-dark-surface)" : "var(--color-surface)",
         borderBottom: `1px solid ${dm ? "var(--color-dark-border)" : "var(--color-border)"}`,
       }}
     >
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 mr-2"
+        style={{
+          backgroundColor: dm ? "var(--color-dark-background)" : "var(--color-background)",
+          border: `1px solid ${dm ? "var(--color-dark-border)" : "var(--color-border)"}`,
+          color: dm ? "var(--color-dark-text-secondary)" : "var(--color-text-secondary)",
+        }}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          {sidebarOpen ? (
+            <g>
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </g>
+          ) : (
+            <g>
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </g>
+          )}
+        </svg>
+      </button>
+
       {/* BRAND */}
       <div className="flex items-center gap-4">
         <img
