@@ -23,24 +23,28 @@ export const ActionButton = ({
     const baseStyle = {
       'primary': {
         backgroundColor: dm ? 'var(--color-dark-primary)' : 'var(--color-primary)',
-        color: 'white'
+        color: 'white',
+        border: 'none'
       },
       'danger': {
-        backgroundColor: dm ? 'rgba(236,112,99,0.18)' : '#FEE2E2',
-        color: dm ? '#F5B7B1' : '#B91C1C'
+        backgroundColor: dm ? 'rgba(236,112,99,0.15)' : 'rgba(239,68,68,0.1)',
+        color: dm ? '#fca5a5' : '#dc2626',
+        border: `1px solid ${dm ? 'rgba(236,112,99,0.3)' : 'rgba(239,68,68,0.2)'}`
       },
       'success': {
-        backgroundColor: dm ? 'rgba(39,174,96,0.18)' : '#DCFCE7',
-        color: dm ? 'var(--color-dark-success)' : '#15803D'
+        backgroundColor: dm ? 'rgba(34,197,94,0.15)' : 'rgba(34,197,94,0.1)',
+        color: dm ? '#86efac' : '#15803d',
+        border: `1px solid ${dm ? 'rgba(34,197,94,0.3)' : 'rgba(34,197,94,0.2)'}`
       },
       'secondary': {
-        backgroundColor: dm ? '#0B1C2C' : '#FFFFFF',
+        backgroundColor: dm ? 'rgba(15,23,42,0.5)' : 'rgba(59,130,246,0.05)',
         color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)',
-        border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}`
+        border: `1px solid ${dm ? 'rgba(93,173,226,0.2)' : 'rgba(59,130,246,0.15)'}`
       },
       'blue': {
-        backgroundColor: '#2563EB',
-        color: 'white'
+        backgroundColor: dm ? 'rgba(59,130,246,0.15)' : 'rgba(59,130,246,0.1)',
+        color: dm ? '#93c5fd' : '#1e40af',
+        border: `1px solid ${dm ? 'rgba(59,130,246,0.3)' : 'rgba(59,130,246,0.2)'}`
       }
     };
     return baseStyle[variant] || baseStyle.secondary;

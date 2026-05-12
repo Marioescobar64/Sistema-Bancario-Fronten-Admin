@@ -89,7 +89,16 @@ export const Transfers = () => {
       </div>
 
       {/* TABLA */}
-      <div className="rounded-xl shadow-sm overflow-hidden transition-colors duration-300" style={getSurfaceStyle(dm)}>
+      <div 
+        className="rounded-xl overflow-hidden transition-all duration-300 mb-6"
+        style={{
+          ...getSurfaceStyle(dm),
+          border: `1px solid ${dm ? 'rgba(93,173,226,0.15)' : 'rgba(31,78,121,0.1)'}`,
+          boxShadow: dm 
+            ? '0 4px 24px rgba(0,0,0,0.15), inset 0 1px 0 rgba(93,173,226,0.1)'
+            : '0 4px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(59,130,246,0.1)'
+        }}
+      >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <TableHeader columns={columns} />
@@ -99,8 +108,21 @@ export const Transfers = () => {
               ) : transfers.length === 0 ? (
                 <EmptyState colSpan={5} message="No hay transferencias registradas." />
               ) : (
-                transfers.map(transfer => (
-                  <tr key={transfer._id} className="border-t transition" style={getTableRowStyle(dm)}>
+                transfers.map((transfer, index) => (
+                  <tr 
+                    key={transfer._id} 
+                    className="transition-all duration-200 hover:shadow-md"
+                    style={{
+                      backgroundColor: index % 2 === 0 
+                        ? dm ? 'rgba(255,255,255,0.01)' : 'rgba(255,255,255,0.5)'
+                        : dm ? 'rgba(31,78,121,0.05)' : 'rgba(59,130,246,0.02)',
+                      borderBottom: `1px solid ${dm ? 'rgba(93,173,226,0.1)' : 'rgba(31,78,121,0.08)'}`,
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = dm ? 'rgba(93,173,226,0.1)' : 'rgba(59,130,246,0.06)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = index % 2 === 0 
+                      ? dm ? 'rgba(255,255,255,0.01)' : 'rgba(255,255,255,0.5)'
+                      : dm ? 'rgba(31,78,121,0.05)' : 'rgba(59,130,246,0.02)'}
+                  >
                     <td className="px-6 py-4 md:px-4 md:py-3 font-medium" style={getPrimaryTextStyle(dm)}>
                       {getAccountNumber(transfer.fromAccount?._id || transfer.fromAccount)}
                     </td>
