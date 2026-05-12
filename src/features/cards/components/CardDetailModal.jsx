@@ -10,6 +10,7 @@ const LockIcon = () => (
 export const CardDetailModal = ({ isOpen, card, onClose, onUpdate, darkMode = false }) => {
   const { register, handleSubmit, reset } = useForm({ defaultValues: card });
   const [loading, setLoading] = useState(false);
+  const [showCVV, setShowCVV] = useState(false);
   const dm = darkMode;
 
   useEffect(() => {
@@ -20,8 +21,8 @@ export const CardDetailModal = ({ isOpen, card, onClose, onUpdate, darkMode = fa
     setLoading(true);
     try {
       await onUpdate(card._id, {
-        ownerCard: data.ownerCard,
         isActive: data.isActive === 'true' || data.isActive === true,
+        expirationDate: data.expirationDate || card.expirationDate,
       });
     } catch (err) {
       console.error(err);
@@ -178,10 +179,39 @@ export const CardDetailModal = ({ isOpen, card, onClose, onUpdate, darkMode = fa
               </div>
             </div>
 
-            {/* ── PROPIETARIO (editable) ── */}
+            {/* ── PROPIETARIO (solo lectura) ── */}
             <div>
               <label className={labelBase}>Nombre del propietario</label>
-              <input type="text" {...register('ownerCard')} className={inputBase} />
+              <div className="relative">
+                <input 
+                  type="text" 
+                  value={card.ownerCard} 
+                  disabled
+                  className={disabledInput} 
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 opacity-40" style={{ color: dm ? '#A9CCE3' : '#5D6D7E' }}>
+                  <LockIcon />
+                </span>
+              </div>
+              <p className="text-xs mt-1" style={{ color: dm ? '#A9CCE3' : '#5D6D7E' }}>
+                No se puede modificar el propietario después de emitir la tarjeta
+              </p>
+            </div>
+
+            {/* ── TIPO DE TARJETA (solo lectura) ── */}
+            <div>
+              <label className={labelBase}>Tipo de Tarjeta</label>
+              <div className="relative">
+                <input 
+                  type="text" 
+                  value={card.cardType || 'N/A'} 
+                  disabled
+                  className={disabledInput} 
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 opacity-40" style={{ color: dm ? '#A9CCE3' : '#5D6D7E' }}>
+                  <LockIcon />
+                </span>
+              </div>
             </div>
 
             {/* ── NÚMERO + CVV (solo lectura, en grid) ── */}
@@ -203,27 +233,42 @@ export const CardDetailModal = ({ isOpen, card, onClose, onUpdate, darkMode = fa
               <div>
                 <label className={labelBase}>CVV</label>
                 <div className="relative">
-                  <input type="password" value={card.securityCode} disabled className={disabledInput} />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 opacity-40" style={{ color: dm ? '#A9CCE3' : '#5D6D7E' }}>
-                    <LockIcon />
-                  </span>
+                  <input 
+                    type={showCVV ? "text" : "password"} 
+                    value={card.securityCode} 
+                    disabled 
+                    className={disabledInput} 
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCVV(!showCVV)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-opacity"
+                    style={{ color: dm ? '#A9CCE3' : '#5D6D7E' }}
+                  >
+                    {showCVV ? (
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    ) : (
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
+                      </svg>
+                    )}
+                  </button>
                 </div>
               </div>
             </div>
 
-            {/* ── FECHA ── */}
+            {/* ── FECHA (editable) ── */}
             <div>
-              <label className={labelBase}>Fecha de expiración</label>
+              <label className={labelBase}>Fecha de expiración *</label>
               <div className="relative">
                 <input
-                  type="text"
-                  value={new Date(card.expirationDate).toLocaleDateString('es-GT')}
-                  disabled
-                  className={disabledInput}
+                  type="date"
+                  {...register('expirationDate')}
+                  defaultValue={new Date(card.expirationDate).toISOString().split('T')[0]}
+                  className={inputBase}
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 opacity-40" style={{ color: dm ? '#A9CCE3' : '#5D6D7E' }}>
-                  <LockIcon />
-                </span>
               </div>
             </div>
 

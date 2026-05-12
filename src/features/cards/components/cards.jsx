@@ -105,6 +105,7 @@ export const Cards = () => {
 
   const columns = [
     { key: 'number', label: 'Número de Tarjeta' },
+    { key: 'type', label: 'Tipo' },
     { key: 'holder', label: 'Propietario' },
     { key: 'expiry', label: 'Vencimiento' },
     { key: 'status', label: 'Estado' },
@@ -141,9 +142,9 @@ export const Cards = () => {
             <TableHeader columns={columns} />
             <tbody>
               {loading ? (
-                <LoadingSpinner colSpan={5} message="Cargando tarjetas..." />
+                <LoadingSpinner colSpan={6} message="Cargando tarjetas..." />
               ) : filteredCards.length === 0 ? (
-                <EmptyState colSpan={5} message="No hay tarjetas para mostrar." />
+                <EmptyState colSpan={6} message="No hay tarjetas para mostrar." />
               ) : (
                 filteredCards.map((card, index) => (
                   <tr 
@@ -161,6 +162,22 @@ export const Cards = () => {
                       : dm ? 'rgba(31,78,121,0.05)' : 'rgba(59,130,246,0.02)'}
                   >
                     <td className="px-6 py-4 md:px-4 md:py-3 font-medium" style={getPrimaryTextStyle(dm)}>{formatCardNumber(card.cardNumbers) || '-'}</td>
+                    <td className="px-6 py-4 md:px-4 md:py-3" style={getSecondaryTextStyle(dm)}>
+                      <span className="px-2 py-1 rounded-full text-xs font-semibold" style={{ 
+                        backgroundColor: card.cardType === 'VISA' ? 'rgba(30, 58, 138, 0.2)' : 
+                                       card.cardType === 'MASTERCARD' ? 'rgba(235, 92, 92, 0.2)' :
+                                       card.cardType === 'AMEX' ? 'rgba(39, 174, 96, 0.2)' :
+                                       card.cardType === 'DINERS' ? 'rgba(142, 68, 173, 0.2)' :
+                                       'rgba(155, 89, 182, 0.2)',
+                        color: card.cardType === 'VISA' ? '#1E3A8A' :
+                               card.cardType === 'MASTERCARD' ? '#DC2626' :
+                               card.cardType === 'AMEX' ? '#16A34A' :
+                               card.cardType === 'DINERS' ? '#7C3AED' :
+                               '#A855F7'
+                      }}>
+                        {card.cardType || '-'}
+                      </span>
+                    </td>
                     <td className="px-6 py-4 md:px-4 md:py-3" style={getSecondaryTextStyle(dm)}>{card.ownerCard || '-'}</td>
                     <td className="px-6 py-4 md:px-4 md:py-3" style={getSecondaryTextStyle(dm)}>{formatDate(card.expirationDate)}</td>
                     <td className="px-6 py-4 md:px-4 md:py-3">

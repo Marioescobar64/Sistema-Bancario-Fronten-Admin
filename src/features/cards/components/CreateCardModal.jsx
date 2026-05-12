@@ -96,6 +96,41 @@ export const CreateCardModal = ({
             )}
           </div>
 
+          {/* TIPO DE TARJETA */}
+          <div>
+            <label 
+              className="block text-sm font-medium mb-1.5" 
+              style={{ color: getColor('--color-text-secondary', '--color-dark-text-secondary') }}
+            >
+              Tipo de Tarjeta *
+            </label>
+            <select
+              {...register('cardType', {
+                required: 'El tipo de tarjeta es requerido'
+              })}
+              className="w-full px-3 py-2 rounded-lg focus:outline-none transition-all"
+              style={{ 
+                backgroundColor: getColor('--color-background', '--color-dark-background'), 
+                color: getColor('--color-text-primary', '--color-dark-text-primary'), 
+                border: `1px solid ${errors.cardType 
+                  ? getColor('--color-error', '--color-dark-error') 
+                  : getColor('--color-border', '--color-dark-border')}` 
+              }}
+            >
+              <option value="">-- Selecciona un tipo --</option>
+              <option value="VISA">VISA</option>
+              <option value="MASTERCARD">MASTERCARD</option>
+              <option value="AMEX">AMEX</option>
+              <option value="DINERS">DINERS CLUB</option>
+              <option value="DISCOVER">DISCOVER</option>
+            </select>
+            {errors.cardType && (
+              <p className="text-xs mt-1" style={{ color: getColor('--color-error', '--color-dark-error') }}>
+                {errors.cardType.message}
+              </p>
+            )}
+          </div>
+
           {/* INFO BOX */}
           <div 
             className="rounded-xl p-4" 
