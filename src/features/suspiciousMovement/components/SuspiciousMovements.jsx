@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { getSuspiciousMovements, updateSuspiciousMovementStatus } from '../../../shared/api/banking';
+import { getSuspiciousMovements, updateSuspiciousMovementStatus } from '../../../shared/api/admin';
 
 import { useDarkMode, usePaginatedList } from '../../../shared/hooks';
 import {

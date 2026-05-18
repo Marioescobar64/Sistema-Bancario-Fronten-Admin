@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAuditLogs } from '../../../shared/api/banking';
+import { getAuditLogs } from '../../../shared/api/admin';
 
 import { useDarkMode, usePaginatedList } from '../../../shared/hooks';
 import {

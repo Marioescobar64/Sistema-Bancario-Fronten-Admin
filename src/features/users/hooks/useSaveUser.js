@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { useAccountStore } from "../store/accountStore";
+import { useUserStore } from "../store/userStore";
 
-export const useSaveAccount = () => {
+export const useSaveUser = () => {
     const [loading, setLoading] = useState(false);
-    const { createAccount, updateAccount } = useAccountStore();
+    const { createUser, updateUser } = useUserStore();
 
-    const save = async (accountData, isEdit = false) => {
+    const save = async (userData, isEdit = false) => {
         setLoading(true);
         try {
             if (isEdit) {
-                await updateAccount(accountData.id, accountData);
+                await updateUser(userData.id, userData);
             } else {
-                await createAccount(accountData);
+                await createUser(userData);
             }
             setLoading(false);
             return { success: true };

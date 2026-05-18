@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 
-import { depositMoney, withdrawMoney } from '../../../shared/api/banking';
+import { depositMoney, withdrawMoney } from '../../../shared/api/admin';
 
 export const AccountDetailModal = ({ isOpen, account, onClose, onUpdate, onRefresh, darkMode = false }) => {
   const { register, handleSubmit, reset } = useForm({

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { getTransfers, getAccounts, createTransfer } from '../../../shared/api/banking';
+import { getTransfers, getAccounts, createTransfer } from '../../../shared/api/admin';
 
 import { useDarkMode, usePaginatedList } from '../../../shared/hooks';
 import {

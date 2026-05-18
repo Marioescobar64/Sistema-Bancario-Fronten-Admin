@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { useAccountStore } from "../store/accountStore";
+import { useLoanStore } from "../store/loanStore";
 
-export const useSaveAccount = () => {
+export const useSaveLoan = () => {
     const [loading, setLoading] = useState(false);
-    const { createAccount, updateAccount } = useAccountStore();
+    const { createLoan, updateLoan } = useLoanStore();
 
-    const save = async (accountData, isEdit = false) => {
+    const save = async (loanData, isEdit = false) => {
         setLoading(true);
         try {
             if (isEdit) {
-                await updateAccount(accountData.id, accountData);
+                await updateLoan(loanData.id, loanData);
             } else {
-                await createAccount(accountData);
+                await createLoan(loanData);
             }
             setLoading(false);
             return { success: true };

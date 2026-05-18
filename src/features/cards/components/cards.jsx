@@ -6,7 +6,7 @@ import {
   createCard,
   updateCard,
   changeCardStatus
-} from '../../../shared/api/banking';
+} from '../../../shared/api/admin';
 
 import { useDarkMode, usePaginatedList } from '../../../shared/hooks';
 import {

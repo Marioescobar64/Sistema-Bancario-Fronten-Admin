@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { useAccountStore } from "../store/accountStore";
+import { useCardStore } from "../store/cardStore";
 
-export const useSaveAccount = () => {
+export const useSaveCard = () => {
     const [loading, setLoading] = useState(false);
-    const { createAccount, updateAccount } = useAccountStore();
+    const { createCard, updateCard } = useCardStore();
 
-    const save = async (accountData, isEdit = false) => {
+    const save = async (cardData, isEdit = false) => {
         setLoading(true);
         try {
             if (isEdit) {
-                await updateAccount(accountData.id, accountData);
+                await updateCard(cardData.id, cardData);
             } else {
-                await createAccount(accountData);
+                await createCard(cardData);
             }
             setLoading(false);
             return { success: true };
