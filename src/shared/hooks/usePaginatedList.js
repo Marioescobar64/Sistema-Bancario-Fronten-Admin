@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import toast from 'react-hot-toast';
+import { useDarkMode } from './useDarkMode';
 
 /**
  * Hook para manejar listas paginadas con CRUD
@@ -7,6 +8,7 @@ import toast from 'react-hot-toast';
  * @param {number} pageSize - Elementos por página (default: 10)
  */
 export const usePaginatedList = (fetchFunction, pageSize = 10) => {
+  const darkMode = useDarkMode();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
@@ -26,12 +28,26 @@ export const usePaginatedList = (fetchFunction, pageSize = 10) => {
         total: response?.pagination?.totalRecords || 0
       });
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Error al cargar datos');
+      const errorMessage = error?.response?.data?.message || 'No pudimos cargar los datos. Por favor, intenta nuevamente.';
+      const toastStyles = {
+        background: darkMode ? 'var(--color-dark-surface)' : 'var(--color-surface)',
+        color: darkMode ? 'var(--color-dark-error)' : 'var(--color-error)',
+        border: `1px solid ${darkMode ? 'var(--color-dark-border)' : 'var(--color-border)'}`,
+        borderRadius: '8px',
+        padding: '12px 16px',
+        fontSize: '14px',
+        fontWeight: '500'
+      };
+      toast.error(errorMessage, {
+        style: toastStyles,
+        duration: 3000,
+        position: 'top-right'
+      });
       setItems([]);
     } finally {
       setLoading(false);
     }
-  }, [pagination.currentPage, pageSize, fetchFunction]);
+  }, [pagination.currentPage, pageSize, fetchFunction, darkMode]);
 
   const goToPage = useCallback((page) => {
     setPagination(prev => ({
