@@ -69,6 +69,11 @@ export const Transfers = () => {
     return account?.accountNumber || 'N/A';
   };
 
+  const getAccountCurrency = (accountId) => {
+    const account = accounts.find(a => a._id === accountId);
+    return account?.currency === 'USD' ? '$' : 'Q';
+  };
+
   const columns = [
     { key: 'from', label: 'De' },
     { key: 'to', label: 'Para' },
@@ -130,14 +135,37 @@ export const Transfers = () => {
                       {getAccountNumber(transfer.toAccount?._id || transfer.toAccount)}
                     </td>
                     <td className="px-6 py-4 md:px-4 md:py-3 text-right font-medium" style={getPrimaryTextStyle(dm)}>
-                      Q {transfer.amount?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}
+                      <div className="flex flex-col items-end">
+                        <span>{getAccountCurrency(transfer.fromAccount?._id || transfer.fromAccount)} {transfer.amount?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</span>
+                        {transfer.convertedAmount && transfer.convertedAmount !== transfer.amount && (
+                          <span className="text-xs text-amber-500 italic font-normal mt-0.5">
+                            (Conv: {getAccountCurrency(transfer.toAccount?._id || transfer.toAccount)} {transfer.convertedAmount?.toLocaleString('es-ES', { minimumFractionDigits: 2 })})
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 md:px-4 md:py-3 text-xs" style={getSecondaryTextStyle(dm)}>
                       {new Date(transfer.createdAt).toLocaleDateString('es-ES')}
                     </td>
                     <td className="px-6 py-4 md:px-4 md:py-3">
-                      <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: dm ? 'rgba(34,197,94,0.18)' : '#DCFCE7', color: dm ? 'var(--color-dark-success)' : '#15803D' }}>
-                        Completada
+                      <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{
+                        backgroundColor: transfer.status === 'COMPLETADA' 
+                          ? (dm ? 'rgba(34,197,94,0.18)' : '#DCFCE7')
+                          : transfer.status === 'REVERSADA'
+                          ? (dm ? 'rgba(239,68,68,0.18)' : '#FEE2E2')
+                          : (dm ? 'rgba(245,158,11,0.18)' : '#FEF3C7'),
+                        color: transfer.status === 'COMPLETADA'
+                          ? (dm ? 'var(--color-dark-success)' : '#15803D')
+                          : transfer.status === 'REVERSADA'
+                          ? (dm ? '#F87171' : '#DC2626')
+                          : (dm ? '#FBBF24' : '#B45309')
+                      }}>
+                        {transfer.status === 'COMPLETADA' ? 'Completada' 
+                          : transfer.status === 'REVERSADA' ? 'Reversada'
+                          : transfer.status === 'PENDIENTE' ? 'Pendiente'
+                          : transfer.status === 'PROCESANDO' ? 'Procesando'
+                          : transfer.status === 'FALLIDA' ? 'Fallida'
+                          : transfer.status}
                       </span>
                     </td>
                   </tr>

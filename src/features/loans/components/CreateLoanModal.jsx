@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-export const CreateLoanModal = ({ isOpen, users, onClose, onCreate, darkMode = false }) => {
+export const CreateLoanModal = ({ isOpen, users, accounts = [], onClose, onCreate, darkMode = false }) => {
   const dm = darkMode;
-  const { register, handleSubmit, formState: { errors }, reset } = useForm();
+  const { register, handleSubmit, formState: { errors }, reset, watch } = useForm();
   const [loading, setLoading] = useState(false);
+
+  // Watch the selected user to filter their accounts
+  const selectedUserId = watch('user');
+  const userAccounts = accounts.filter(acc => acc.user?._id === selectedUserId || acc.user === selectedUserId);
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -13,7 +17,7 @@ export const CreateLoanModal = ({ isOpen, users, onClose, onCreate, darkMode = f
         ...data,
         amount: parseFloat(data.amount),
         interestRate: parseFloat(data.interestRate),
-        months: parseInt(data.months)
+        termMonths: parseInt(data.termMonths, 10)
       });
       reset();
     } finally {
@@ -36,41 +40,101 @@ export const CreateLoanModal = ({ isOpen, users, onClose, onCreate, darkMode = f
         >
           <h2 className="text-xl sm:text-2xl font-bold">Nuevo Préstamo</h2>
           <p className="text-xs sm:text-sm opacity-80">
-            Crea un nuevo préstamo para un cliente
+            Crea un nuevo préstamo y asigna la cuenta de desembolso
           </p>
         </div>
 
         {/* FORM */}
         <form onSubmit={handleSubmit(onSubmit)} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
 
-          <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
-              Cliente *
-            </label>
-            <select
-              {...register('user', { required: 'El cliente es requerido' })}
-              className="w-full px-3 py-2 rounded-lg focus:outline-none"
-              style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.user ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
-            >
-              <option value="">Seleccionar cliente</option>
-              {users.map(user => (
-                <option key={user._id} value={user._id}>
-                  {user.name} ({user.email})
-                </option>
-              ))}
-            </select>
-            {errors.user && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.user.message}</p>}
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
-                Monto (Q) *
+                Cliente *
+              </label>
+              <select
+                {...register('user', { required: 'El cliente es requerido' })}
+                className="w-full px-3 py-2 rounded-lg focus:outline-none"
+                style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.user ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
+              >
+                <option value="">Seleccionar cliente</option>
+                {users.map(user => (
+                  <option key={user._id} value={user._id}>
+                    {user.name} {user.lastName}
+                  </option>
+                ))}
+              </select>
+              {errors.user && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.user.message}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
+                Cuenta de Desembolso *
+              </label>
+              <select
+                {...register('account', { required: 'La cuenta es requerida' })}
+                disabled={!selectedUserId || userAccounts.length === 0}
+                className="w-full px-3 py-2 rounded-lg focus:outline-none disabled:opacity-50"
+                style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.account ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
+              >
+                <option value="">Seleccionar cuenta</option>
+                {userAccounts.map(acc => (
+                  <option key={acc._id} value={acc._id}>
+                    {acc.accountNumber} ({acc.type} - {acc.currency})
+                  </option>
+                ))}
+              </select>
+              {errors.account && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.account.message}</p>}
+              {selectedUserId && userAccounts.length === 0 && (
+                <p className="text-xs mt-1 text-amber-500">Este cliente no tiene cuentas activas</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
+                Tipo de Préstamo *
+              </label>
+              <select
+                {...register('loanType', { required: 'El tipo es requerido' })}
+                className="w-full px-3 py-2 rounded-lg focus:outline-none"
+                style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.loanType ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
+              >
+                <option value="">Seleccionar tipo</option>
+                <option value="PERSONAL">Personal / Fiduciario</option>
+                <option value="HIPOTECARIO">Hipotecario</option>
+                <option value="VEHICULAR">Vehicular</option>
+                <option value="EDUCATIVO">Educativo</option>
+                <option value="EMPRESARIAL">Empresarial</option>
+                <option value="MICROCREDITO">Microcrédito</option>
+                <option value="AGRICOLA">Agrícola</option>
+              </select>
+              {errors.loanType && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.loanType.message}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
+                Moneda *
+              </label>
+              <select
+                {...register('currency', { required: 'La moneda es requerida' })}
+                defaultValue="GTQ"
+                className="w-full px-3 py-2 rounded-lg focus:outline-none"
+                style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.currency ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
+              >
+                <option value="GTQ">Quetzales (GTQ)</option>
+                <option value="USD">Dólares (USD)</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
+                Monto *
               </label>
               <input
                 type="number"
                 step="0.01"
-                {...register('amount', { required: 'El monto es requerido' })}
+                min="500"
+                {...register('amount', { required: 'El monto es requerido', min: 500 })}
                 className="w-full px-3 py-2 rounded-lg focus:outline-none"
                 style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.amount ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
               />
@@ -79,30 +143,33 @@ export const CreateLoanModal = ({ isOpen, users, onClose, onCreate, darkMode = f
 
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
-                Tasa de Interés (%) *
+                Tasa de Interés Anual (%) *
               </label>
               <input
                 type="number"
                 step="0.01"
+                min="0"
+                max="100"
                 {...register('interestRate', { required: 'La tasa es requerida' })}
                 className="w-full px-3 py-2 rounded-lg focus:outline-none"
                 style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.interestRate ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
               />
               {errors.interestRate && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.interestRate.message}</p>}
             </div>
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
-              Plazo (meses) *
-            </label>
-            <input
-              type="number"
-              {...register('months', { required: 'El plazo es requerido' })}
-              className="w-full px-3 py-2 rounded-lg focus:outline-none"
-              style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.months ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
-            />
-            {errors.months && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.months.message}</p>}
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
+                Plazo (meses) *
+              </label>
+              <input
+                type="number"
+                min="1"
+                {...register('termMonths', { required: 'El plazo es requerido' })}
+                className="w-full px-3 py-2 rounded-lg focus:outline-none"
+                style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.termMonths ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
+              />
+              {errors.termMonths && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.termMonths.message}</p>}
+            </div>
           </div>
 
           {/* BOTONES */}
@@ -124,7 +191,7 @@ export const CreateLoanModal = ({ isOpen, users, onClose, onCreate, darkMode = f
               }}
               className="w-full sm:w-auto px-5 py-2 rounded-lg text-white font-medium transition shadow disabled:opacity-50"
             >
-              {loading ? 'Creando...' : 'Crear préstamo'}
+              {loading ? 'Procesando...' : 'Crear préstamo'}
             </button>
           </div>
         </form>

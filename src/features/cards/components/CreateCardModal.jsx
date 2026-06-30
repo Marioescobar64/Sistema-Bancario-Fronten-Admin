@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 
 export const CreateCardModal = ({
   isOpen,
+  accounts = [],
   onClose,
   onCreate,
   darkMode = false
@@ -21,7 +22,16 @@ export const CreateCardModal = ({
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      await onCreate(data);
+      // Find the selected account to extract the user ID
+      const selectedAccount = accounts.find(a => a._id === data.account);
+      const userId = selectedAccount?.user?._id || selectedAccount?.user;
+
+      const payload = {
+        ...data,
+        user: userId
+      };
+
+      await onCreate(payload);
       reset();
       onClose(); // Opcional: cerrar al terminar
     } catch (error) {
@@ -39,7 +49,7 @@ export const CreateCardModal = ({
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 px-3 sm:px-4">
       <div 
-        className="rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden transition-colors duration-300" 
+        className="rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden transition-colors duration-300" 
         style={{ 
           backgroundColor: getColor('--color-surface', '--color-dark-surface'), 
           border: `1px solid ${getColor('--color-border', '--color-dark-border')}`,
@@ -66,69 +76,170 @@ export const CreateCardModal = ({
           onSubmit={handleSubmit(onSubmit)}
           className="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1"
         >
-          {/* PROPIETARIO */}
+          {/* CUENTA ASOCIADA */}
           <div>
             <label 
               className="block text-sm font-medium mb-1.5" 
               style={{ color: getColor('--color-text-secondary', '--color-dark-text-secondary') }}
             >
-              Nombre del Propietario *
+              Cuenta Asociada *
             </label>
-            <input
-              type="text"
-              placeholder="Ej: Roberto Topala"
-              {...register('ownerCard', {
-                required: 'El propietario es requerido'
+            <select
+              {...register('account', {
+                required: 'La cuenta es requerida'
               })}
               className="w-full px-3 py-2 rounded-lg focus:outline-none transition-all"
               style={{ 
                 backgroundColor: getColor('--color-background', '--color-dark-background'), 
                 color: getColor('--color-text-primary', '--color-dark-text-primary'), 
-                border: `1px solid ${errors.ownerCard 
+                border: `1px solid ${errors.account 
                   ? getColor('--color-error', '--color-dark-error') 
                   : getColor('--color-border', '--color-dark-border')}` 
               }}
-            />
-            {errors.ownerCard && (
+            >
+              <option value="">-- Selecciona una cuenta --</option>
+              {accounts.map(acc => (
+                <option key={acc._id} value={acc._id}>
+                  {acc.accountNumber} - {acc.user?.name} {acc.user?.lastName} ({acc.type})
+                </option>
+              ))}
+            </select>
+            {errors.account && (
               <p className="text-xs mt-1" style={{ color: getColor('--color-error', '--color-dark-error') }}>
-                {errors.ownerCard.message}
+                {errors.account.message}
               </p>
             )}
           </div>
 
-          {/* TIPO DE TARJETA */}
-          <div>
-            <label 
-              className="block text-sm font-medium mb-1.5" 
-              style={{ color: getColor('--color-text-secondary', '--color-dark-text-secondary') }}
-            >
-              Tipo de Tarjeta *
-            </label>
-            <select
-              {...register('cardType', {
-                required: 'El tipo de tarjeta es requerido'
-              })}
-              className="w-full px-3 py-2 rounded-lg focus:outline-none transition-all"
-              style={{ 
-                backgroundColor: getColor('--color-background', '--color-dark-background'), 
-                color: getColor('--color-text-primary', '--color-dark-text-primary'), 
-                border: `1px solid ${errors.cardType 
-                  ? getColor('--color-error', '--color-dark-error') 
-                  : getColor('--color-border', '--color-dark-border')}` 
-              }}
-            >
-              <option value="">-- Selecciona un tipo --</option>
-              <option value="VISA">VISA</option>
-              <option value="MASTERCARD">MASTERCARD</option>
-              <option value="AMEX">AMEX</option>
-              <option value="DINERS">DINERS CLUB</option>
-              <option value="DISCOVER">DISCOVER</option>
-            </select>
-            {errors.cardType && (
-              <p className="text-xs mt-1" style={{ color: getColor('--color-error', '--color-dark-error') }}>
-                {errors.cardType.message}
-              </p>
-            )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* PROPIETARIO */}
+            <div>
+              <label 
+                className="block text-sm font-medium mb-1.5" 
+                style={{ color: getColor('--color-text-secondary', '--color-dark-text-secondary') }}
+              >
+                Nombre Impreso en Tarjeta *
+              </label>
+              <input
+                type="text"
+                placeholder="Ej: Roberto Topala"
+                {...register('ownerCard', {
+                  required: 'El propietario es requerido'
+                })}
+                className="w-full px-3 py-2 rounded-lg focus:outline-none transition-all"
+                style={{ 
+                  backgroundColor: getColor('--color-background', '--color-dark-background'), 
+                  color: getColor('--color-text-primary', '--color-dark-text-primary'), 
+                  border: `1px solid ${errors.ownerCard 
+                    ? getColor('--color-error', '--color-dark-error') 
+                    : getColor('--color-border', '--color-dark-border')}` 
+                }}
+              />
+              {errors.ownerCard && (
+                <p className="text-xs mt-1" style={{ color: getColor('--color-error', '--color-dark-error') }}>
+                  {errors.ownerCard.message}
+                </p>
+              )}
+            </div>
+
+            {/* CATEGORÍA */}
+            <div>
+              <label 
+                className="block text-sm font-medium mb-1.5" 
+                style={{ color: getColor('--color-text-secondary', '--color-dark-text-secondary') }}
+              >
+                Categoría *
+              </label>
+              <select
+                {...register('cardCategory', {
+                  required: 'La categoría es requerida'
+                })}
+                className="w-full px-3 py-2 rounded-lg focus:outline-none transition-all"
+                style={{ 
+                  backgroundColor: getColor('--color-background', '--color-dark-background'), 
+                  color: getColor('--color-text-primary', '--color-dark-text-primary'), 
+                  border: `1px solid ${errors.cardCategory 
+                    ? getColor('--color-error', '--color-dark-error') 
+                    : getColor('--color-border', '--color-dark-border')}` 
+                }}
+              >
+                <option value="">-- Selecciona --</option>
+                <option value="DEBITO">Débito</option>
+                <option value="CREDITO">Crédito</option>
+              </select>
+              {errors.cardCategory && (
+                <p className="text-xs mt-1" style={{ color: getColor('--color-error', '--color-dark-error') }}>
+                  {errors.cardCategory.message}
+                </p>
+              )}
+            </div>
+
+            {/* FRANQUICIA / TIPO */}
+            <div>
+              <label 
+                className="block text-sm font-medium mb-1.5" 
+                style={{ color: getColor('--color-text-secondary', '--color-dark-text-secondary') }}
+              >
+                Franquicia *
+              </label>
+              <select
+                {...register('cardType', {
+                  required: 'La franquicia es requerida'
+                })}
+                className="w-full px-3 py-2 rounded-lg focus:outline-none transition-all"
+                style={{ 
+                  backgroundColor: getColor('--color-background', '--color-dark-background'), 
+                  color: getColor('--color-text-primary', '--color-dark-text-primary'), 
+                  border: `1px solid ${errors.cardType 
+                    ? getColor('--color-error', '--color-dark-error') 
+                    : getColor('--color-border', '--color-dark-border')}` 
+                }}
+              >
+                <option value="">-- Selecciona --</option>
+                <option value="VISA">VISA</option>
+                <option value="MASTERCARD">MASTERCARD</option>
+              </select>
+              {errors.cardType && (
+                <p className="text-xs mt-1" style={{ color: getColor('--color-error', '--color-dark-error') }}>
+                  {errors.cardType.message}
+                </p>
+              )}
+            </div>
+
+            {/* NIVEL / TIER */}
+            <div>
+              <label 
+                className="block text-sm font-medium mb-1.5" 
+                style={{ color: getColor('--color-text-secondary', '--color-dark-text-secondary') }}
+              >
+                Nivel (Segmentación) *
+              </label>
+              <select
+                {...register('cardTier', {
+                  required: 'El nivel es requerido'
+                })}
+                className="w-full px-3 py-2 rounded-lg focus:outline-none transition-all"
+                style={{ 
+                  backgroundColor: getColor('--color-background', '--color-dark-background'), 
+                  color: getColor('--color-text-primary', '--color-dark-text-primary'), 
+                  border: `1px solid ${errors.cardTier 
+                    ? getColor('--color-error', '--color-dark-error') 
+                    : getColor('--color-border', '--color-dark-border')}` 
+                }}
+              >
+                <option value="">-- Selecciona --</option>
+                <option value="CLASICA">Clásica</option>
+                <option value="ORO">Oro</option>
+                <option value="PLATINUM">Platinum</option>
+                <option value="BLACK">Black</option>
+                <option value="INFINITE">Infinite</option>
+              </select>
+              {errors.cardTier && (
+                <p className="text-xs mt-1" style={{ color: getColor('--color-error', '--color-dark-error') }}>
+                  {errors.cardTier.message}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* INFO BOX */}

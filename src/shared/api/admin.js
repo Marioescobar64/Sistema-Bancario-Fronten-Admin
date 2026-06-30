@@ -13,6 +13,11 @@ export const getUserById = async (id) => {
     return data;
 };
 
+export const preValidateUser = async (userData) => {
+    const { data } = await axiosAdmin.post("/users/pre-validate", userData);
+    return data;
+};
+
 export const createUser = async (userData) => {
     const { data } = await axiosAdmin.post("/users", userData);
     return data;
@@ -29,9 +34,9 @@ export const changeUserStatus = async (id) => {
 };
 
 // ================= ACCOUNTS =================
-export const getAccounts = async (page = 1, limit = 10) => {
+export const getAccounts = async (page = 1, limit = 10, search = '') => {
     const { data } = await axiosAdmin.get("/accounts", {
-        params: { page, limit }
+        params: { page, limit, search }
     });
     return data;
 };
@@ -54,6 +59,14 @@ export const updateAccount = async (id, accountData) => {
 export const changeAccountStatus = async (id) => {
     const { data } = await axiosAdmin.patch(`/accounts/status/${id}`);
     return data;
+};
+
+export const downloadStatement = async (accountId, from, to) => {
+  const { token } = await import('../../features/auth/authStore.js').then(m => m.useAuthStore.getState());
+  const baseURL = import.meta.env.VITE_ADMIN_URL;
+  const url = `${baseURL}/accounts/${accountId}/statement?from=${from}&to=${to}&token=${token}`;
+  window.open(url, '_blank');
+  return { success: true };
 };
 
 // ================= CARDS =================
@@ -93,14 +106,39 @@ export const updateCard = async (id, cardData) => {
 };
 
 export const changeCardStatus = async (id, isActive) => {
-    // El backend expone endpoints separados para activar/desactivar
-    if (isActive) {
-        const { data } = await axiosAdmin.put(`/cards/${id}/activate`);
-        return data;
-    } else {
-        const { data } = await axiosAdmin.put(`/cards/${id}/deactivate`);
-        return data;
-    }
+  try {
+    const { data } = await axiosAdmin.patch(`/cards/status/${id}`);
+    return data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+export const freezeCard = async (id) => {
+  try {
+    const { data } = await axiosAdmin.patch(`/cards/freeze/${id}`);
+    return data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+export const createExtraFinancing = async (cardId, financingData) => {
+  try {
+    const { data } = await axiosAdmin.post(`/cards/extra-financing/${cardId}`, financingData);
+    return data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+export const getExtraFinancingsByCard = async (cardId) => {
+  try {
+    const { data } = await axiosAdmin.get(`/cards/extra-financing/${cardId}`);
+    return data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
 };
 
 // ================= TRANSFERS =================
@@ -119,13 +157,13 @@ export const createTransfer = async (transferData) => {
 };
 
 // ================= ACCOUNTS - Money Ops =================
-export const depositMoney = async (accountNumber, amount) => {
-    const { data } = await axiosAdmin.patch(`/accounts/deposit/${accountNumber}`, { amount });
+export const depositMoney = async (accountNumber, amount, currency) => {
+    const { data } = await axiosAdmin.patch(`/accounts/deposit/${accountNumber}`, { amount, currency });
     return data;
 };
 
-export const withdrawMoney = async (accountNumber, amount) => {
-    const { data } = await axiosAdmin.patch(`/accounts/withdraw/${accountNumber}`, { amount });
+export const withdrawMoney = async (accountNumber, amount, currency) => {
+    const { data } = await axiosAdmin.patch(`/accounts/withdraw/${accountNumber}`, { amount, currency });
     return data;
 };
 
@@ -183,8 +221,7 @@ export const getSuspiciousMovementById = async (id) => {
     return data;
 };
 
-export const updateSuspiciousMovementStatus = async (id, reviewed) => {
-    const endpoint = reviewed ? `/suspicious/${id}/review` : `/suspicious/${id}/unreview`;
-    const { data } = await axiosAdmin.put(endpoint);
+export const updateSuspiciousMovementStatus = async (id, status) => {
+    const { data } = await axiosAdmin.put(`/suspicious/${id}/status`, { status });
     return data;
 };

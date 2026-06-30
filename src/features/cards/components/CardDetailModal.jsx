@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
+import { freezeCard, createExtraFinancing, getExtraFinancingsByCard } from '../../../shared/api/admin';
 
 const LockIcon = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -11,11 +13,70 @@ export const CardDetailModal = ({ isOpen, card, onClose, onUpdate, darkMode = fa
   const { register, handleSubmit, reset } = useForm({ defaultValues: card });
   const [loading, setLoading] = useState(false);
   const [showCVV, setShowCVV] = useState(false);
+  
+  // Nuevos estados
+  const [activeTab, setActiveTab] = useState('details'); // details, financing
+  const [isFrozen, setIsFrozen] = useState(card?.isFrozen || false);
+  const [financings, setFinancings] = useState([]);
+  const [financingLoading, setFinancingLoading] = useState(false);
+  
   const dm = darkMode;
 
   useEffect(() => {
-    if (card) reset(card);
+    if (card) {
+      reset(card);
+      setIsFrozen(card.isFrozen || false);
+      if (card.cardCategory === 'CREDITO') {
+        loadFinancings(card._id);
+      }
+    }
   }, [card, reset]);
+
+  const loadFinancings = async (id) => {
+    try {
+      const res = await getExtraFinancingsByCard(id);
+      setFinancings(res.data || []);
+    } catch (e) {
+      console.error('Error loading financings', e);
+    }
+  };
+
+  const handleToggleFreeze = async () => {
+    try {
+      setLoading(true);
+      const res = await freezeCard(card._id);
+      setIsFrozen(res.data.isFrozen);
+      toast.success(res.data.isFrozen ? 'Tarjeta apagada' : 'Tarjeta encendida');
+      onUpdate(card._id, res.data); // Opcional, para actualizar tabla externa
+    } catch (e) {
+      toast.error(e.message || 'Error al cambiar estado de la tarjeta');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onFinancingSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = {
+      amount: Number(formData.get('amount')),
+      installments: Number(formData.get('installments')),
+      interestRate: Number(formData.get('interestRate') || 0),
+      description: formData.get('description'),
+    };
+    
+    try {
+      setFinancingLoading(true);
+      await createExtraFinancing(card._id, data);
+      toast.success('Extra-financiamiento creado exitosamente');
+      e.target.reset();
+      loadFinancings(card._id);
+    } catch (err) {
+      toast.error(err.message || 'Error al crear financiamiento');
+    } finally {
+      setFinancingLoading(false);
+    }
+  };
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -105,9 +166,29 @@ export const CardDetailModal = ({ isOpen, card, onClose, onUpdate, darkMode = fa
           </button>
         </div>
 
-        {/* FORM */}
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
-          <div className="flex-1 overflow-y-auto px-5 py-5 space-y-5">
+        {card.cardCategory === 'CREDITO' && (
+          <div className="flex px-5 pt-2 border-b" style={{ borderColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)' }}>
+            <button
+              onClick={() => setActiveTab('details')}
+              className={`pb-2 px-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'details' ? (dm ? 'border-[#5DADE2] text-[#5DADE2]' : 'border-[#1F4E79] text-[#1F4E79]') : 'border-transparent opacity-60'}`}
+              style={{ color: activeTab === 'details' ? undefined : (dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)') }}
+            >
+              Detalles
+            </button>
+            <button
+              onClick={() => setActiveTab('financing')}
+              className={`pb-2 px-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'financing' ? (dm ? 'border-[#5DADE2] text-[#5DADE2]' : 'border-[#1F4E79] text-[#1F4E79]') : 'border-transparent opacity-60'}`}
+              style={{ color: activeTab === 'financing' ? undefined : (dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)') }}
+            >
+              Cuotas / Extra-Financiamiento
+            </button>
+          </div>
+        )}
+
+        {/* CONTENIDO */}
+        {activeTab === 'details' ? (
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
+            <div className="flex-1 overflow-y-auto px-5 py-5 space-y-5">
 
             {/* ── TARJETA VISUAL ── */}
             <div
@@ -299,6 +380,25 @@ export const CardDetailModal = ({ isOpen, card, onClose, onUpdate, darkMode = fa
                 })}
               </div>
             </div>
+
+            {/* ── APAGAR/ENCENDER (FREEZE) ── */}
+            <div>
+              <label className={labelBase}>Control de Tarjeta</label>
+              <div className="flex items-center justify-between p-4 rounded-xl border" style={{ backgroundColor: dm ? 'var(--color-dark-background)' : 'var(--color-background)', borderColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)' }}>
+                <div>
+                  <p className="text-sm font-semibold" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>Apagar Tarjeta Temporalmente</p>
+                  <p className="text-xs" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>Bloquea compras y retiros temporalmente</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleToggleFreeze}
+                  disabled={card.isBlocked || loading}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isFrozen ? 'bg-[#5DADE2]' : 'bg-gray-300'} ${card.isBlocked ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isFrozen ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* FOOTER */}
@@ -345,6 +445,66 @@ export const CardDetailModal = ({ isOpen, card, onClose, onUpdate, darkMode = fa
             </button>
           </div>
         </form>
+        ) : (
+          <div className="flex flex-col flex-1 overflow-hidden">
+            <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6">
+              
+              {/* Formulario para Nuevo Extra-financiamiento */}
+              <div className="p-4 rounded-xl border" style={{ backgroundColor: dm ? 'var(--color-dark-background)' : 'var(--color-background)', borderColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)' }}>
+                <h3 className="text-sm font-semibold mb-3" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>Nuevo Extra-Financiamiento</h3>
+                <form onSubmit={onFinancingSubmit} className="space-y-3">
+                  <div>
+                    <label className={labelBase}>Monto a Financiar (Q)</label>
+                    <input name="amount" type="number" step="0.01" required className={inputBase} placeholder="Ej. 5000" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className={labelBase}>Cuotas</label>
+                      <select name="installments" required className={inputBase}>
+                        {[3, 6, 10, 12, 18, 24, 36, 48].map(n => <option key={n} value={n}>{n} meses</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className={labelBase}>Tasa de Interés (%)</label>
+                      <input name="interestRate" type="number" step="0.01" defaultValue="0" className={inputBase} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className={labelBase}>Descripción / Concepto</label>
+                    <input name="description" type="text" required className={inputBase} placeholder="Ej. Visacuotas Electrónicos" />
+                  </div>
+                  <button type="submit" disabled={financingLoading} className="w-full py-2 mt-2 rounded-lg text-sm font-semibold text-white transition-opacity disabled:opacity-50" style={{ backgroundColor: dm ? '#5DADE2' : '#1F4E79' }}>
+                    {financingLoading ? 'Procesando...' : 'Desembolsar Extra-Financiamiento'}
+                  </button>
+                </form>
+              </div>
+
+              {/* Lista de Financiamientos */}
+              <div>
+                <h3 className="text-sm font-semibold mb-3" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>Historial de Cuotas</h3>
+                {financings.length === 0 ? (
+                  <p className="text-xs italic" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>No hay extra-financiamientos registrados.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {financings.map(fin => (
+                      <div key={fin._id} className="p-3 rounded-lg border text-sm" style={{ borderColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)' }}>
+                        <div className="flex justify-between font-semibold" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
+                          <span>{fin.description}</span>
+                          <span>Q{fin.amount.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-xs mt-1" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
+                          <span>{fin.installments} cuotas de Q{fin.monthlyPayment.toFixed(2)}</span>
+                          <span className={fin.status === 'ACTIVO' ? 'text-blue-500' : 'text-green-500'}>{fin.status}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

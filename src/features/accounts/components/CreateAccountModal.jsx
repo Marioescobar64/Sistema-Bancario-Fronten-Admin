@@ -24,7 +24,8 @@ export const CreateAccountModal = ({
     try {
       const payload = {
         user: data.user,
-        type: data.type
+        type: data.type,
+        currency: data.currency
       };
       await onCreate(payload);
       reset();
@@ -106,35 +107,72 @@ export const CreateAccountModal = ({
           </div>
 
           {/* TIPO */}
-          <div>
-            <label 
-              className="block text-sm font-semibold mb-2" 
-              style={{ color: getStyle('--color-text-secondary', '--color-dark-text-secondary') }}
-            >
-              Tipo de Cuenta *
-            </label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label 
+                className="block text-sm font-semibold mb-2" 
+                style={{ color: getStyle('--color-text-secondary', '--color-dark-text-secondary') }}
+              >
+                Tipo de Cuenta *
+              </label>
 
-            <select
-              {...register('type', { required: 'El tipo de cuenta es requerido' })}
-              className="w-full px-4 py-2.5 rounded-xl focus:outline-none transition-all border-2"
-              style={{
-                backgroundColor: getStyle('--color-background', '--color-dark-background'),
-                color: getStyle('--color-text-primary', '--color-dark-text-primary'),
-                borderColor: errors.type 
-                  ? getStyle('--color-error', '--color-dark-error') 
-                  : getStyle('--color-border', '--color-dark-border'),
-              }}
-            >
-              <option value="">Seleccionar tipo</option>
-              <option value="AHORRO">Cuenta de Ahorro</option>
-              <option value="MONETARIA">Cuenta Monetaria</option>
-            </select>
+              <select
+                {...register('type', { required: 'El tipo de cuenta es requerido' })}
+                className="w-full px-4 py-2.5 rounded-xl focus:outline-none transition-all border-2"
+                style={{
+                  backgroundColor: getStyle('--color-background', '--color-dark-background'),
+                  color: getStyle('--color-text-primary', '--color-dark-text-primary'),
+                  borderColor: errors.type 
+                    ? getStyle('--color-error', '--color-dark-error') 
+                    : getStyle('--color-border', '--color-dark-border'),
+                }}
+              >
+                <option value="">Seleccionar tipo</option>
+                <option value="AHORRO">Ahorro</option>
+                <option value="MONETARIA">Monetaria</option>
+                <option value="PLAZO_FIJO">Plazo Fijo</option>
+                <option value="AHORRO_INFANTIL">Ahorro Infantil</option>
+                <option value="AHORRO_NAVIDEÑO">Ahorro Navideño</option>
+              </select>
 
-            {errors.type && (
-              <p className="text-xs mt-1.5 font-medium" style={{ color: getStyle('--color-error', '--color-dark-error') }}>
-                {errors.type.message}
-              </p>
-            )}
+              {errors.type && (
+                <p className="text-xs mt-1.5 font-medium" style={{ color: getStyle('--color-error', '--color-dark-error') }}>
+                  {errors.type.message}
+                </p>
+              )}
+            </div>
+
+            {/* MONEDA */}
+            <div>
+              <label 
+                className="block text-sm font-semibold mb-2" 
+                style={{ color: getStyle('--color-text-secondary', '--color-dark-text-secondary') }}
+              >
+                Moneda *
+              </label>
+
+              <select
+                {...register('currency', { required: 'La moneda es requerida' })}
+                defaultValue="GTQ"
+                className="w-full px-4 py-2.5 rounded-xl focus:outline-none transition-all border-2"
+                style={{
+                  backgroundColor: getStyle('--color-background', '--color-dark-background'),
+                  color: getStyle('--color-text-primary', '--color-dark-text-primary'),
+                  borderColor: errors.currency 
+                    ? getStyle('--color-error', '--color-dark-error') 
+                    : getStyle('--color-border', '--color-dark-border'),
+                }}
+              >
+                <option value="GTQ">Quetzales (GTQ)</option>
+                <option value="USD">Dólares (USD)</option>
+              </select>
+
+              {errors.currency && (
+                <p className="text-xs mt-1.5 font-medium" style={{ color: getStyle('--color-error', '--color-dark-error') }}>
+                  {errors.currency.message}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* BOTONES */}

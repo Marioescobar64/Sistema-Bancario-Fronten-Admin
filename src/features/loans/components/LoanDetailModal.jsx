@@ -35,7 +35,7 @@ export const LoanDetailModal = ({
               Detalles del Préstamo
             </h2>
             <p className="text-xs sm:text-sm opacity-80">
-              ID: {loan.id}
+              ID: {loan.loanNumber || loan._id}
             </p>
           </div>
           <button
@@ -53,7 +53,7 @@ export const LoanDetailModal = ({
               <p style={{ color: getColor('--color-text-secondary', '--color-dark-text-secondary') }} className="text-sm font-medium">
                 Monto
               </p>
-              <p className="text-lg font-bold">${loan.amount?.toFixed(2)}</p>
+              <p className="text-lg font-bold">{loan.currency === 'USD' ? '$' : 'Q'} {loan.amount?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</p>
             </div>
             <div>
               <p style={{ color: getColor('--color-text-secondary', '--color-dark-text-secondary') }} className="text-sm font-medium">
@@ -65,7 +65,7 @@ export const LoanDetailModal = ({
               <p style={{ color: getColor('--color-text-secondary', '--color-dark-text-secondary') }} className="text-sm font-medium">
                 Plazo (meses)
               </p>
-              <p className="text-lg font-bold">{loan.term}</p>
+              <p className="text-lg font-bold">{loan.termMonths}</p>
             </div>
             <div>
               <p style={{ color: getColor('--color-text-secondary', '--color-dark-text-secondary') }} className="text-sm font-medium">

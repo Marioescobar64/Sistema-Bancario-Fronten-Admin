@@ -5,6 +5,9 @@ export const CreateTransferModal = ({ isOpen, accounts, onClose, onCreate, darkM
   const { register, handleSubmit, formState: { errors }, reset, watch } = useForm();
   const [loading, setLoading] = useState(false);
   const fromAccount = watch('fromAccount');
+  const toAccount = watch('toAccount');
+  const amount = watch('amount');
+  const transferType = watch('transferType');
   const dm = darkMode;
 
   const onSubmit = async (data) => {
@@ -12,7 +15,8 @@ export const CreateTransferModal = ({ isOpen, accounts, onClose, onCreate, darkM
     try {
       await onCreate({
         ...data,
-        amount: parseFloat(data.amount)
+        amount: parseFloat(data.amount),
+        channel: 'VENTANILLA' // Desde el panel de administración
       });
       reset();
     } finally {
@@ -23,6 +27,8 @@ export const CreateTransferModal = ({ isOpen, accounts, onClose, onCreate, darkM
   if (!isOpen) return null;
 
   const fromAccountObj = accounts.find(a => a._id === fromAccount);
+  const toAccountObj = accounts.find(a => a._id === toAccount);
+  const isInterbank = transferType === 'INTERBANCARIA_ACH' || transferType === 'INTERBANCARIA_LBTR' || transferType === 'INTERNACIONAL';
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 px-3 sm:px-4">
@@ -37,7 +43,7 @@ export const CreateTransferModal = ({ isOpen, accounts, onClose, onCreate, darkM
         >
           <h2 className="text-xl sm:text-2xl font-bold">Nueva Transferencia</h2>
           <p className="text-xs sm:text-sm opacity-80">
-            Realiza una transferencia entre cuentas
+            Realiza una transferencia desde el sistema central (Ventanilla)
           </p>
         </div>
 
@@ -47,7 +53,7 @@ export const CreateTransferModal = ({ isOpen, accounts, onClose, onCreate, darkM
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
-                Desde *
+                Cuenta de Origen *
               </label>
               <select
                 {...register('fromAccount', { required: 'Selecciona la cuenta origen' })}
@@ -57,7 +63,7 @@ export const CreateTransferModal = ({ isOpen, accounts, onClose, onCreate, darkM
                 <option value="">Seleccionar cuenta</option>
                 {accounts.map(account => (
                   <option key={account._id} value={account._id}>
-                    {account.accountNumber} (Q{account.balance})
+                    {account.accountNumber} ({account.currency === 'USD' ? '$' : 'Q'}{account.balance?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}) - {account.user?.name}
                   </option>
                 ))}
               </select>
@@ -66,27 +72,61 @@ export const CreateTransferModal = ({ isOpen, accounts, onClose, onCreate, darkM
 
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
-                Para *
+                Tipo de Transferencia *
               </label>
               <select
-                {...register('toAccount', { required: 'Selecciona la cuenta destino' })}
+                {...register('transferType', { required: 'El tipo es requerido' })}
+                defaultValue="INTERNA"
+                className="w-full px-3 py-2 rounded-lg focus:outline-none"
+                style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.transferType ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
+              >
+                <option value="INTERNA">Interna (Mismo Banco)</option>
+                <option value="INTERBANCARIA_ACH">ACH (Otros Bancos)</option>
+                <option value="INTERBANCARIA_LBTR">LBTR (Tiempo Real)</option>
+                <option value="INTERNACIONAL">Internacional (SWIFT)</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
+                Cuenta de Destino {isInterbank ? '(ID Interno)' : '*'}
+              </label>
+              <select
+                {...register('toAccount', { required: !isInterbank ? 'Selecciona la cuenta destino' : false })}
                 className="w-full px-3 py-2 rounded-lg focus:outline-none"
                 style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.toAccount ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
               >
-                <option value="">Seleccionar cuenta</option>
+                <option value="">Seleccionar cuenta interna</option>
                 {accounts.filter(a => a._id !== fromAccount).map(account => (
                   <option key={account._id} value={account._id}>
-                    {account.accountNumber} ({account.type})
+                    {account.accountNumber} ({account.type}) - {account.user?.name}
                   </option>
                 ))}
               </select>
               {errors.toAccount && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.toAccount.message}</p>}
             </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
+                Moneda *
+              </label>
+              <select
+                {...register('currency', { required: 'La moneda es requerida' })}
+                defaultValue="GTQ"
+                className="w-full px-3 py-2 rounded-lg focus:outline-none"
+                style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.currency ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
+              >
+                <option value="GTQ">Quetzales (GTQ)</option>
+                <option value="USD">Dólares (USD)</option>
+              </select>
+            </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
-              Monto (Q) *
+              Monto (Q / $) *
             </label>
             <input
               type="number"
@@ -99,11 +139,52 @@ export const CreateTransferModal = ({ isOpen, accounts, onClose, onCreate, darkM
               style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${errors.amount ? (dm ? '#EC7063' : '#EF4444') : (dm ? 'var(--color-dark-border)' : 'var(--color-border)' )}` }}
             />
             {errors.amount && <p className="text-xs mt-1" style={{ color: dm ? '#F87171' : '#EF4444' }}>{errors.amount.message}</p>}
+            {fromAccountObj && toAccountObj && fromAccountObj.currency !== toAccountObj.currency && Number(amount) > 0 && (
+              <div className="mt-2 p-2.5 rounded-lg border" style={{ backgroundColor: dm ? 'rgba(245, 158, 11, 0.1)' : '#FFFBEB', borderColor: dm ? 'rgba(245, 158, 11, 0.2)' : '#FEF3C7' }}>
+                <p className="text-xs font-medium" style={{ color: dm ? '#FBBF24' : '#B45309' }}>
+                  ⚠️ Tasa de cambio: 7.80. El destinatario recibirá: {toAccountObj.currency === 'USD' ? '$' : 'Q'}{fromAccountObj.currency === 'GTQ' ? (Number(amount) / 7.80).toFixed(2) : (Number(amount) * 7.80).toFixed(2)}
+                </p>
+              </div>
+            )}
           </div>
 
           {fromAccountObj && (
             <div className="p-3 rounded-lg" style={{ backgroundColor: dm ? 'rgba(93,173,226,0.12)' : '#EFF6FF', border: `1px solid ${dm ? 'var(--color-dark-border)' : '#BFDBFE'}` }}>
-              <p className="text-xs" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>Saldo disponible: <strong>Q {fromAccountObj.balance?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</strong></p>
+              <p className="text-xs" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>Saldo disponible: <strong>{fromAccountObj.currency} {fromAccountObj.balance?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</strong></p>
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
+              Descripción / Concepto
+            </label>
+            <input
+              type="text"
+              {...register('description')}
+              placeholder="Ej: Pago de planilla"
+              className="w-full px-3 py-2 rounded-lg focus:outline-none"
+              style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
+            />
+          </div>
+
+          {/* CAMPOS BENEFICIARIO INTERBANCARIO */}
+          {isInterbank && (
+            <div className="p-4 rounded-lg border space-y-3 mt-4" style={{ backgroundColor: dm ? 'rgba(0,0,0,0.2)' : '#F9FAFB', borderColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)' }}>
+              <h4 className="text-xs font-bold uppercase" style={{ color: dm ? 'var(--color-dark-primary)' : 'var(--color-primary)' }}>Datos del Beneficiario Externo</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium mb-1" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>Nombre Beneficiario</label>
+                  <input type="text" {...register('beneficiary.name', { required: isInterbank ? 'Requerido para interbancaria' : false })} className="w-full px-3 py-1.5 rounded-lg text-sm focus:outline-none border" style={{ backgroundColor: dm ? '#0B1C2C' : '#FFFFFF', borderColor: errors.beneficiary?.name ? '#EF4444' : (dm ? 'var(--color-dark-border)' : 'var(--color-border)') }} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>Banco Destino</label>
+                  <input type="text" {...register('beneficiary.bankName', { required: isInterbank ? 'Requerido' : false })} className="w-full px-3 py-1.5 rounded-lg text-sm focus:outline-none border" style={{ backgroundColor: dm ? '#0B1C2C' : '#FFFFFF', borderColor: errors.beneficiary?.bankName ? '#EF4444' : (dm ? 'var(--color-dark-border)' : 'var(--color-border)') }} />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-xs font-medium mb-1" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>No. Cuenta Destino</label>
+                  <input type="text" {...register('beneficiary.accountNumber', { required: isInterbank ? 'Requerido' : false })} className="w-full px-3 py-1.5 rounded-lg text-sm focus:outline-none border" style={{ backgroundColor: dm ? '#0B1C2C' : '#FFFFFF', borderColor: errors.beneficiary?.accountNumber ? '#EF4444' : (dm ? 'var(--color-dark-border)' : 'var(--color-border)') }} />
+                </div>
+              </div>
             </div>
           )}
 

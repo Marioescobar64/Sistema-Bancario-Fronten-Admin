@@ -19,9 +19,9 @@ export const useAuthStore = create(
             checkAuth: () => {
                 const token = get().token;
                 const role = get().user?.role;
-                const isAdmin = role === "ADMIN_ROLE";
+                const isAdminPanelAllowed = ["SUPER_ADMIN_ROLE", "ADMIN_ROLE", "CAJERO_ROLE"].includes(role);
 
-                if (token && !isAdmin) {
+                if (token && !isAdminPanelAllowed) {
                     set({
                         user: null,
                         token: null,
@@ -47,9 +47,9 @@ export const useAuthStore = create(
             login: async ({ emailOrUsername, password }) => {
                 const { data } = await loginRequest({ emailOrUsername, password })
 
-                // solo administradores puede iniciar sesion en sistema-bancario
+                // solo roles administrativos pueden iniciar sesion en sistema-bancario admin
                 const role = data?.userDetails?.role;
-                if (role !== "ADMIN_ROLE") {
+                if (!["SUPER_ADMIN_ROLE", "ADMIN_ROLE", "CAJERO_ROLE"].includes(role)) {
                     const message = "No autorizado para acceder al panel de administración";
                     set({
                         user: null,

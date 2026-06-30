@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { getLoans, getUsers, createLoan, changeLoanStatus } from '../../../shared/api/admin';
+import {
+  getLoans,
+  getUsers,
+  getAccounts,
+  createLoan,
+  changeLoanStatus
+} from '../../../shared/api/admin';
 
 import { useDarkMode, usePaginatedList } from '../../../shared/hooks';
 import {
@@ -34,21 +40,28 @@ export const Loans = () => {
   } = usePaginatedList(getLoans, 10);
 
   const [users, setUsers] = useState([]);
+  const [accountsList, setAccountsList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [statusDrafts, setStatusDrafts] = useState({});
 
-  const loadUsers = async () => {
+  const loadData = async () => {
     try {
-      const response = await getUsers(1, 100);
-      setUsers(response.data);
+      const [usersRes, accountsRes] = await Promise.all([
+        getUsers(1, 100),
+        getAccounts(1, 100)
+      ]);
+      setUsers(usersRes?.data || []);
+      setAccountsList(accountsRes?.data || []);
     } catch (error) {
-      console.error('Error al cargar usuarios:', error);
+      console.error('Error al cargar datos:', error);
+      setUsers([]);
+      setAccountsList([]);
     }
   };
 
   useEffect(() => {
-    loadUsers();
+    loadData();
   }, []);
 
   useEffect(() => {
@@ -94,10 +107,16 @@ export const Loans = () => {
   };
 
   const filteredLoans = loans.filter(loan => {
-    return !searchTerm || loan.loanCode?.includes(searchTerm);
+    return !searchTerm || loan.loanNumber?.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  const getUserName = (userId) => {
+  const getUserName = (loanUser) => {
+    // Si el user viene populado del backend como objeto
+    if (loanUser && typeof loanUser === 'object' && loanUser.name) {
+      return loanUser.name;
+    }
+    // Fallback: buscar en la lista de usuarios
+    const userId = typeof loanUser === 'object' ? loanUser._id : loanUser;
     const user = users.find(u => u._id === userId);
     return user?.name || 'Usuario no encontrado';
   };
@@ -161,16 +180,38 @@ export const Loans = () => {
                       ? dm ? 'rgba(255,255,255,0.01)' : 'rgba(255,255,255,0.5)'
                       : dm ? 'rgba(31,78,121,0.05)' : 'rgba(59,130,246,0.02)'}
                   >
-                    <td className="px-6 py-4 md:px-4 md:py-3 font-medium" style={getPrimaryTextStyle(dm)}>{loan.loanCode}</td>
+                    <td className="px-6 py-4 md:px-4 md:py-3 font-medium" style={getPrimaryTextStyle(dm)}>{loan.loanNumber}</td>
                     <td className="px-6 py-4 md:px-4 md:py-3" style={getSecondaryTextStyle(dm)}>{getUserName(loan.user)}</td>
                     <td className="px-6 py-4 md:px-4 md:py-3 text-right font-medium" style={getPrimaryTextStyle(dm)}>
-                      Q {loan.amount?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}
+                      {loan.currency === 'USD' ? '$' : 'Q'} {loan.amount?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}
                     </td>
                     <td className="px-6 py-4 md:px-4 md:py-3 text-right" style={getSecondaryTextStyle(dm)}>
-                      Q {loan.monthlyPayment?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}
+                      {loan.currency === 'USD' ? '$' : 'Q'} {loan.monthlyPayment?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}
                     </td>
                     <td className="px-6 py-4 md:px-4 md:py-3">
-                      <StatusBadge isActive={loan?.isActive} activeLabel="Activo" inactiveLabel="Cancelado" />
+                      <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{
+                        backgroundColor: ['AL_DIA', 'APROBADO', 'DESEMBOLSADO', 'PAGADO'].includes(loan.status)
+                          ? (dm ? 'rgba(34,197,94,0.18)' : '#DCFCE7')
+                          : ['RECHAZADO', 'CANCELADO', 'EN_MORA'].includes(loan.status)
+                          ? (dm ? 'rgba(239,68,68,0.18)' : '#FEE2E2')
+                          : (dm ? 'rgba(245,158,11,0.18)' : '#FEF3C7'),
+                        color: ['AL_DIA', 'APROBADO', 'DESEMBOLSADO', 'PAGADO'].includes(loan.status)
+                          ? (dm ? 'var(--color-dark-success)' : '#15803D')
+                          : ['RECHAZADO', 'CANCELADO', 'EN_MORA'].includes(loan.status)
+                          ? (dm ? '#F87171' : '#DC2626')
+                          : (dm ? '#FBBF24' : '#B45309')
+                      }}>
+                        {loan.status === 'SOLICITADO' ? 'Solicitado'
+                          : loan.status === 'EN_REVISION' ? 'En Revisión'
+                          : loan.status === 'APROBADO' ? 'Aprobado'
+                          : loan.status === 'DESEMBOLSADO' ? 'Desembolsado'
+                          : loan.status === 'AL_DIA' ? 'Al Día'
+                          : loan.status === 'EN_MORA' ? 'En Mora'
+                          : loan.status === 'PAGADO' ? 'Pagado'
+                          : loan.status === 'RECHAZADO' ? 'Rechazado'
+                          : loan.status === 'CANCELADO' ? 'Cancelado'
+                          : loan.status}
+                      </span>
                     </td>
                     <td className="px-6 py-4 md:px-4 md:py-3 text-xs" style={getSecondaryTextStyle(dm)}>
                       {new Date(loan.createdAt).toLocaleDateString('es-ES')}
@@ -183,10 +224,15 @@ export const Loans = () => {
                           className="px-2 py-1 rounded-lg text-xs focus:outline-none"
                           style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
                         >
-                          <option value="PENDING">PENDING</option>
-                          <option value="APPROVED">APPROVED</option>
-                          <option value="REJECTED">REJECTED</option>
-                          <option value="PAID">PAID</option>
+                          <option value="SOLICITADO">Solicitado</option>
+                          <option value="EN_REVISION">En Revisión</option>
+                          <option value="APROBADO">Aprobado</option>
+                          <option value="DESEMBOLSADO">Desembolsado</option>
+                          <option value="AL_DIA">Al Día</option>
+                          <option value="EN_MORA">En Mora</option>
+                          <option value="PAGADO">Pagado</option>
+                          <option value="RECHAZADO">Rechazado</option>
+                          <option value="CANCELADO">Cancelado</option>
                         </select>
                         <ActionButton
                           label="Guardar"
@@ -218,6 +264,7 @@ export const Loans = () => {
       <CreateLoanModal 
         isOpen={showCreateModal}
         users={users}
+        accounts={accountsList}
         onClose={() => setShowCreateModal(false)}
         onCreate={handleCreateLoan}
         darkMode={dm}

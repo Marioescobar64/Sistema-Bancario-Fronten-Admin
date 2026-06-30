@@ -5,7 +5,8 @@ import {
   getUsers,
   createAccount,
   updateAccount,
-  changeAccountStatus
+  changeAccountStatus,
+  getAccountById
 } from '../../../shared/api/admin';
 
 import { useDarkMode, usePaginatedList } from '../../../shared/hooks';
@@ -60,9 +61,23 @@ export const Accounts = () => {
     loadUsers();
   }, []);
 
+  // Effect for debouncing search
+  const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
+
   useEffect(() => {
-    loadItems();
-  }, [pagination.currentPage, loadItems]);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    resetPage();
+  }, [debouncedSearch, resetPage]);
+
+  useEffect(() => {
+    loadItems(debouncedSearch);
+  }, [pagination.currentPage, loadItems, debouncedSearch]);
 
   const handleCreateAccount = async (accountData) => {
     try {
@@ -97,11 +112,7 @@ export const Accounts = () => {
     }
   };
 
-  const filteredAccounts = (accounts || []).filter(account => {
-    return !searchTerm ||
-      account.accountNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      account.type?.toLowerCase().includes(searchTerm.toLowerCase());
-  });
+
 
   const columns = [
     { key: 'number', label: 'Número de Cuenta' },
@@ -143,10 +154,10 @@ export const Accounts = () => {
             <tbody>
               {loading ? (
                 <LoadingSpinner colSpan={6} message="Cargando cuentas..." />
-              ) : filteredAccounts.length === 0 ? (
+              ) : accounts.length === 0 ? (
                 <EmptyState colSpan={6} message="No hay cuentas para mostrar." />
               ) : (
-                filteredAccounts.map((account, index) => (
+                accounts.map((account, index) => (
                   <tr 
                     key={account._id} 
                     className="transition-all duration-200 hover:shadow-md"
@@ -165,7 +176,7 @@ export const Accounts = () => {
                     <td className="px-6 py-4 md:px-4 md:py-3" style={getSecondaryTextStyle(dm)}>{account.type}</td>
                     <td className="px-6 py-4 md:px-4 md:py-3" style={getSecondaryTextStyle(dm)}>{account.user?.name || 'Usuario no encontrado'}</td>
                     <td className="px-6 py-4 md:px-4 md:py-3 text-right font-medium" style={getPrimaryTextStyle(dm)}>
-                      Q {account.balance?.toLocaleString('es-ES', { minimumFractionDigits: 2 }) || '0.00'}
+                      {account.currency === 'USD' ? '$' : 'Q'} {account.balance?.toLocaleString('es-ES', { minimumFractionDigits: 2 }) || '0.00'}
                     </td>
                     <td className="px-6 py-4 md:px-4 md:py-3">
                       <StatusBadge isActive={account?.isActive} activeLabel="Activa" inactiveLabel="Inactiva" />
@@ -193,7 +204,7 @@ export const Accounts = () => {
         </div>
 
         {/* PAGINACIÓN */}
-        {!loading && filteredAccounts.length > 0 && (
+        {!loading && accounts.length > 0 && (
           <Pagination
             pagination={pagination}
             onPrevPage={prevPage}
@@ -222,6 +233,11 @@ export const Accounts = () => {
             setSelectedAccount(null);
           }}
           onUpdate={handleUpdateAccount}
+          onRefresh={async () => {
+            await loadItems();
+            const updated = await getAccountById(selectedAccount._id);
+            if (updated?.data) setSelectedAccount(updated.data);
+          }}
           darkMode={dm}
         />
       )}

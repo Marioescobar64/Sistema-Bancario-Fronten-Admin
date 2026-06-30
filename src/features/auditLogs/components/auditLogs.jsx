@@ -44,7 +44,11 @@ export const AuditLogs = () => {
       'CREATE': { bg: dm ? 'rgba(16,185,129,0.18)' : '#DCFCE7', text: dm ? '#10B981' : '#059669' },
       'UPDATE': { bg: dm ? 'rgba(59,130,246,0.18)' : '#DBEAFE', text: dm ? '#3B82F6' : '#0284C7' },
       'DELETE': { bg: dm ? 'rgba(239,68,68,0.18)' : '#FEE2E2', text: dm ? '#EF4444' : '#DC2626' },
-      'VIEW': { bg: dm ? 'rgba(107,114,128,0.18)' : '#F3F4F6', text: dm ? '#6B7280' : '#374151' }
+      'VIEW': { bg: dm ? 'rgba(107,114,128,0.18)' : '#F3F4F6', text: dm ? '#6B7280' : '#374151' },
+      'LOGIN': { bg: dm ? 'rgba(139,92,246,0.18)' : '#EDE9FE', text: dm ? '#8B5CF6' : '#6D28D9' },
+      'LOGOUT': { bg: dm ? 'rgba(156,163,175,0.18)' : '#F3F4F6', text: dm ? '#9CA3AF' : '#4B5563' },
+      'APPROVE': { bg: dm ? 'rgba(34,197,94,0.18)' : '#DCFCE7', text: dm ? '#22C55E' : '#15803D' },
+      'REJECT': { bg: dm ? 'rgba(244,63,94,0.18)' : '#FFE4E6', text: dm ? '#F43F5E' : '#E11D48' }
     };
     return colors[action] || colors['VIEW'];
   };
@@ -80,6 +84,8 @@ export const AuditLogs = () => {
             <option value="CARD">Tarjeta</option>
             <option value="TRANSFER">Transferencia</option>
             <option value="LOAN">Préstamo</option>
+            <option value="SUSPICIOUS_MOVEMENT">Movimiento Sospechoso</option>
+            <option value="SYSTEM">Sistema</option>
           </select>
           <select
             value={filterAction}
@@ -92,6 +98,10 @@ export const AuditLogs = () => {
             <option value="UPDATE">Actualizar</option>
             <option value="DELETE">Eliminar</option>
             <option value="VIEW">Ver</option>
+            <option value="LOGIN">Login</option>
+            <option value="LOGOUT">Logout</option>
+            <option value="APPROVE">Aprobar</option>
+            <option value="REJECT">Rechazar</option>
           </select>
         </div>
       </div>

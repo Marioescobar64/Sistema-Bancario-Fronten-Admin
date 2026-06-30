@@ -10,6 +10,7 @@ export const AccountDetailModal = ({ isOpen, account, onClose, onUpdate, onRefre
   });
   const [loading, setLoading] = useState(false);
   const [operationAmount, setOperationAmount] = useState('');
+  const [operationCurrency, setOperationCurrency] = useState('GTQ');
   const [operationLoading, setOperationLoading] = useState(false);
   const dm = darkMode;
 
@@ -41,10 +42,10 @@ export const AccountDetailModal = ({ isOpen, account, onClose, onUpdate, onRefre
 
     try {
       if (operation === 'deposit') {
-        await depositMoney(account.accountNumber, amount);
+        await depositMoney(account.accountNumber, amount, operationCurrency);
         toast.success('Depósito realizado correctamente');
       } else {
-        await withdrawMoney(account.accountNumber, amount);
+        await withdrawMoney(account.accountNumber, amount, operationCurrency);
         toast.success('Retiro realizado correctamente');
       }
 
@@ -105,7 +106,7 @@ export const AccountDetailModal = ({ isOpen, account, onClose, onUpdate, onRefre
             }}>
               <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: getStyle('--color-text-secondary', '--color-dark-text-secondary') }}>Saldo Actual</p>
               <p className="text-lg font-black" style={{ color: getStyle('--color-primary', '--color-dark-primary') }}>
-                Q {account.balance?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}
+                {account.currency === 'USD' ? '$' : 'Q'} {account.balance?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}
               </p>
             </div>
           </div>
@@ -121,19 +122,39 @@ export const AccountDetailModal = ({ isOpen, account, onClose, onUpdate, onRefre
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="sm:col-span-1">
-                <input
-                  type="number"
-                  placeholder="Monto"
-                  value={operationAmount}
-                  onChange={(e) => setOperationAmount(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg focus:outline-none border-2 transition-all"
-                  style={{ 
-                    backgroundColor: getStyle('--color-surface', '--color-dark-surface'), 
-                    color: getStyle('--color-text-primary', '--color-dark-text-primary'), 
-                    borderColor: getStyle('--color-border', '--color-dark-border') 
-                  }}
-                />
+              <div className="sm:col-span-1 flex flex-col gap-1">
+                <div className="flex gap-2">
+                  <select
+                    value={operationCurrency}
+                    onChange={(e) => setOperationCurrency(e.target.value)}
+                    className="w-1/3 px-2 py-2 rounded-lg focus:outline-none border-2 transition-all font-bold text-center"
+                    style={{ 
+                      backgroundColor: getStyle('--color-surface', '--color-dark-surface'), 
+                      color: getStyle('--color-text-primary', '--color-dark-text-primary'), 
+                      borderColor: getStyle('--color-border', '--color-dark-border') 
+                    }}
+                  >
+                    <option value="GTQ">Q</option>
+                    <option value="USD">$</option>
+                  </select>
+                  <input
+                    type="number"
+                    placeholder="Monto"
+                    value={operationAmount}
+                    onChange={(e) => setOperationAmount(e.target.value)}
+                    className="w-2/3 px-3 py-2 rounded-lg focus:outline-none border-2 transition-all"
+                    style={{ 
+                      backgroundColor: getStyle('--color-surface', '--color-dark-surface'), 
+                      color: getStyle('--color-text-primary', '--color-dark-text-primary'), 
+                      borderColor: getStyle('--color-border', '--color-dark-border') 
+                    }}
+                  />
+                </div>
+                {operationAmount > 0 && account.currency && operationCurrency !== account.currency && (
+                  <p className="text-[10px] font-medium italic mt-1 text-amber-500">
+                    Equivale a: {account.currency === 'USD' ? '$' : 'Q'}{operationCurrency === 'GTQ' ? (Number(operationAmount) / 7.80).toFixed(2) : (Number(operationAmount) * 7.80).toFixed(2)}
+                  </p>
+                )}
               </div>
 
               <div className="sm:col-span-2 flex gap-2">

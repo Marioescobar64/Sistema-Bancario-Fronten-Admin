@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 
 import {
   getCards,
+  getAccounts,
   createCard,
   updateCard,
   changeCardStatus
@@ -44,9 +45,22 @@ export const Cards = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
+  
+  // Agregar lista de cuentas para el modal de creación
+  const [accountsList, setAccountsList] = useState([]);
+
+  const loadAccounts = async () => {
+    try {
+      const response = await getAccounts(1, 100);
+      setAccountsList(response?.data || []);
+    } catch (error) {
+      console.error('Error cargando cuentas:', error);
+    }
+  };
 
   useEffect(() => {
     loadItems();
+    loadAccounts();
   }, [pagination.currentPage, loadItems]);
 
   const handleCreateCard = async (cardData) => {
@@ -222,6 +236,7 @@ export const Cards = () => {
       {/* MODALES */}
       <CreateCardModal
         isOpen={showCreateModal}
+        accounts={accountsList}
         onClose={() => setShowCreateModal(false)}
         onCreate={handleCreateCard}
         darkMode={dm}

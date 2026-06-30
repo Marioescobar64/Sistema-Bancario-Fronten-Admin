@@ -1,149 +1,105 @@
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import React from 'react';
+import { StatusBadge } from '../../../shared/components/StatusBadge';
+import { getPrimaryTextStyle, getSecondaryTextStyle } from '../../../shared/utils/styleHelpers';
 
-export const UserDetailModal = ({ isOpen, user, onClose, onUpdate, darkMode = false }) => {
+export const UserDetailModal = ({ isOpen, user, onClose, darkMode = false }) => {
   const dm = darkMode;
-  const { register, handleSubmit, reset } = useForm({
-    defaultValues: user
-  });
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (user) {
-      reset(user);
-    }
-  }, [user, reset]);
-
-  const onSubmit = async (data) => {
-    setLoading(true);
-    try {
-      await onUpdate(user._id, data);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (!isOpen || !user) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 px-3 sm:px-4">
-      <div className="rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden transition-colors duration-300" style={{ backgroundColor: dm ? 'var(--color-dark-surface)' : 'var(--color-surface)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}`, color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
-
+      <div 
+        className="rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden transition-colors duration-300"
+        style={{ 
+          backgroundColor: dm ? 'var(--color-dark-surface)' : 'var(--color-surface)',
+          border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}`,
+        }}
+      >
         {/* HEADER */}
-        <div
-          className="p-4 sm:p-5 text-white sticky top-0 z-10"
-          style={{
-            background: "linear-gradient(90deg, #0066cc 0%, #1956a3 100%)",
-          }}
-        >
-          <h2 className="text-xl sm:text-2xl font-bold">Detalle de Usuario</h2>
-          <p className="text-xs sm:text-sm opacity-80">
-            Consulta y edita información del usuario
-          </p>
+        <div className="p-4 sm:p-6 text-white sticky top-0 z-10 flex justify-between items-center" style={{ background: "linear-gradient(90deg, #0066cc 0%, #1956a3 100%)" }}>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-3">
+              Expediente del Cliente
+              <span className="text-xs px-2 py-0.5 bg-white/20 rounded-full font-medium">ID: {user._id?.substring(0,8)}...</span>
+            </h2>
+            <p className="text-sm opacity-90 mt-1">{user.name} {user.lastName}</p>
+          </div>
+          <button onClick={onClose} className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         </div>
 
-        {/* CONTENT */}
-        <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4 overflow-y-auto flex-1">
-
-          {/* USER INFO */}
-          <div className="rounded-lg p-4" style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}>
-            <p className="text-xs mb-1" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>ID del Usuario</p>
-            <p className="text-sm font-medium break-all" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>{user._id}</p>
-          </div>
-
-          {/* DATA */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
-                Nombre
-              </label>
-              <input
-                type="text"
-                {...register('name')}
-                className="w-full px-3 py-2 rounded-lg focus:outline-none"
-                style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
-              />
+        {/* CONTENIDO */}
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-6">
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="col-span-1 flex flex-col items-center p-4 rounded-xl border" style={{ borderColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)', backgroundColor: dm ? 'rgba(0,0,0,0.2)' : '#F9FAFB' }}>
+              <div className="w-24 h-24 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-3xl font-bold mb-3 border-4 border-white shadow-sm">
+                {user.name?.charAt(0)}{user.lastName?.charAt(0)}
+              </div>
+              <h3 className="font-bold text-center text-lg" style={getPrimaryTextStyle(dm)}>{user.name} {user.lastName}</h3>
+              <p className="text-xs text-center mb-3" style={getSecondaryTextStyle(dm)}>{user.email}</p>
+              
+              <div className="flex gap-2 flex-wrap justify-center mb-2">
+                <StatusBadge isActive={user.isActive} />
+                <span className="px-2 py-1 text-[10px] font-bold rounded-md bg-blue-100 text-blue-700">{user.role}</span>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>
-                Email
-              </label>
-              <input
-                type="email"
-                {...register('email')}
-                className="w-full px-3 py-2 rounded-lg focus:outline-none"
-                style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
-              />
+            <div className="col-span-2 space-y-4">
+              
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider mb-2 border-b pb-1" style={{ color: dm ? 'var(--color-dark-primary)' : 'var(--color-primary)', borderColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)' }}>Información Personal</h4>
+                <div className="grid grid-cols-2 gap-y-3 gap-x-4">
+                  <InfoItem label="DPI" value={user.dpi} dm={dm} />
+                  <InfoItem label="NIT" value={user.nit} dm={dm} />
+                  <InfoItem label="Teléfono" value={user.phone} dm={dm} />
+                  <InfoItem label="Fecha de Nac." value={user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString() : '-'} dm={dm} />
+                  <InfoItem label="Género" value={user.gender === 'M' ? 'Masculino' : 'Femenino'} dm={dm} />
+                  <InfoItem label="Nacionalidad" value={user.nationality} dm={dm} />
+                </div>
+              </div>
+
             </div>
           </div>
 
-          {/* ROLE */}
           <div>
-            <label className="block text-sm font-semibold mb-1" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
-              Rol
-            </label>
-            <select
-              {...register('role')}
-              className="w-full px-3 py-2 rounded-lg focus:outline-none transition"
-              style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
-            >
-              <option value="USER">USER</option>
-              <option value="ADMIN">ADMIN</option>
-            </select>
-          </div>
-
-          {/* STATUS */}
-          <div>
-            <label className="block text-sm font-semibold mb-2" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>
-              Estado
-            </label>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  value={true}
-                  {...register('isActive')}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>Activo</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  value={false}
-                  {...register('isActive')}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>Inactivo</span>
-              </label>
+            <h4 className="text-xs font-bold uppercase tracking-wider mb-2 border-b pb-1" style={{ color: dm ? 'var(--color-dark-primary)' : 'var(--color-primary)', borderColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)' }}>Dirección Residencial</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-lg" style={{ backgroundColor: dm ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)' }}>
+              <InfoItem label="Calle/Avenida" value={user.address?.street} dm={dm} fullWidth />
+              <InfoItem label="Zona" value={user.address?.zone} dm={dm} />
+              <InfoItem label="Municipio" value={user.address?.municipality} dm={dm} />
+              <InfoItem label="Departamento" value={user.address?.department} dm={dm} />
             </div>
           </div>
 
-          {/* BOTONES */}
-          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-4 border-t" style={{ borderTopColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)' }}>
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-full sm:w-auto px-4 py-2 rounded-lg transition font-medium"
-              style={{ backgroundColor: dm ? 'var(--color-dark-background)' : 'var(--color-background)', color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
-            >
-              Cerrar
-            </button>
-
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                background: "linear-gradient(90deg, #0066cc 0%, #1956a3 100%)",
-              }}
-              className="w-full sm:w-auto px-5 py-2 rounded-lg text-white font-medium transition shadow disabled:opacity-50"
-            >
-              {loading ? 'Guardando...' : 'Guardar cambios'}
-            </button>
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-wider mb-2 border-b pb-1" style={{ color: dm ? 'var(--color-dark-primary)' : 'var(--color-primary)', borderColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)' }}>Perfil KYC (Conozca a su Cliente)</h4>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 rounded-lg border" style={{ borderColor: dm ? 'var(--color-dark-border)' : 'var(--color-border)', backgroundColor: user.riskLevel === 'ALTO' ? (dm ? 'rgba(239,68,68,0.1)' : 'rgba(239,68,68,0.05)') : 'transparent' }}>
+              <InfoItem label="Ocupación" value={user.occupation} dm={dm} />
+              <InfoItem label="Ingreso Mensual" value={user.monthlyIncome ? `Q ${user.monthlyIncome.toLocaleString()}` : '-'} dm={dm} />
+              <InfoItem label="Fuente Ingreso" value={user.incomeSource} dm={dm} />
+              <div className="flex flex-col">
+                <span className="text-[10px] uppercase font-bold" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>Nivel de Riesgo</span>
+                <span className={`text-sm font-medium ${user.riskLevel === 'ALTO' ? 'text-red-500' : 'text-green-500'}`}>{user.riskLevel || 'BAJO'}</span>
+              </div>
+              <div className="flex flex-col sm:col-span-2">
+                <span className="text-[10px] uppercase font-bold" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>Persona Expuesta Políticamente (PEP)</span>
+                <span className={`text-sm font-bold ${user.isPEP ? 'text-red-500' : (dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)')}`}>{user.isPEP ? 'SÍ, MARCAR PARA REVISIÓN' : 'NO'}</span>
+              </div>
+            </div>
           </div>
-        </form>
+
+        </div>
       </div>
     </div>
   );
 };
+
+const InfoItem = ({ label, value, dm, fullWidth = false }) => (
+  <div className={`flex flex-col ${fullWidth ? 'col-span-full' : ''}`}>
+    <span className="text-[10px] uppercase font-bold mb-0.5" style={{ color: dm ? 'var(--color-dark-text-secondary)' : 'var(--color-text-secondary)' }}>{label}</span>
+    <span className="text-sm font-medium" style={{ color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)' }}>{value || '-'}</span>
+  </div>
+);

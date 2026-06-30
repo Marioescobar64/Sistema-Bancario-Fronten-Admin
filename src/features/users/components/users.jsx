@@ -5,8 +5,12 @@ import {
   getUsers,
   createUser,
   updateUser,
-  changeUserStatus
+  changeUserStatus,
+  preValidateUser
 } from '../../../shared/api/admin';
+
+import { register, updateUserRole } from '../../../shared/api/auth';
+import { useAuthStore } from '../../../features/auth/authStore.js';
 
 import { useDarkMode, usePaginatedList } from '../../../shared/hooks';
 import {
@@ -27,6 +31,7 @@ import {
 
 import { CreateUserModal } from './CreateUserModal';
 import { UserDetailModal } from './UserDetailModal';
+import { EditUserModal } from './EditUserModal';
 
 export const Users = () => {
   const dm = useDarkMode();
@@ -42,32 +47,91 @@ export const Users = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all'); // 'true', 'false', 'all'
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
+  const currentUserRole = useAuthStore(state => state.user?.role);
+
+  // Determinar si el usuario logueado puede editar al usuario objetivo
+  const canEdit = (targetUser) => {
+    if (!targetUser) return false;
+    if (currentUserRole === 'SUPER_ADMIN_ROLE') return true;
+    if (currentUserRole === 'ADMIN_ROLE') {
+      return targetUser.role !== 'SUPER_ADMIN' && targetUser.role !== 'ADMIN';
+    }
+    return false;
+  };
+
   useEffect(() => {
-    loadItems();
-  }, [pagination.currentPage, loadItems]);
+    loadItems(statusFilter);
+  }, [pagination.currentPage, loadItems, statusFilter]);
 
   const handleCreateUser = async (userData) => {
     try {
-      await createUser(userData);
-      toast.success('Usuario creado exitosamente');
+      // 0. Pre-validate in Banking Service
+      await preValidateUser(userData);
+
+      // 1. Create Identity in Auth Service
+      const authData = new FormData();
+      authData.append('name', userData.name);
+      authData.append('surname', userData.lastName);
+      authData.append('username', userData.email); // Use email as default username
+      authData.append('email', userData.email);
+      authData.append('password', userData.password);
+      authData.append('phone', userData.phone);
+      
+      const registerRes = await register(authData);
+      const userId = registerRes.data?.user?.id;
+
+      // 2. Assign Role if not default USER
+      if (userData.role !== 'USER' && userId) {
+        let roleName = 'USER_ROLE';
+        if (userData.role === 'ADMIN') roleName = 'ADMIN_ROLE';
+        if (userData.role === 'SUPER_ADMIN') roleName = 'SUPER_ADMIN_ROLE';
+        if (userData.role === 'CAJERO') roleName = 'CAJERO_ROLE';
+        
+        await updateUserRole(userId, roleName);
+      }
+
+      // 3. Create Profile in Banking Service
+      const bankingData = {
+        ...userData,
+        authId: userId // Link to PostgreSQL ID
+      };
+      
+      await createUser(bankingData);
+
+      toast.success('Usuario creado. Se ha enviado un correo de verificación.');
       setShowCreateModal(false);
       resetPage();
-      await loadItems();
+      await loadItems(statusFilter);
     } catch (error) {
+      console.error(error);
       toast.error(error?.response?.data?.message || 'Error al crear usuario');
     }
   };
 
-  const handleUpdateUser = async (userId, userData) => {
+  const handleUpdateUser = async (userId, userData, authId) => {
     try {
+      // 1. Update in Banking Service
       await updateUser(userId, userData);
+      
+      // 2. Update Role in Auth Service if authId exists
+      if (authId && userData.role) {
+        let roleName = 'USER_ROLE';
+        if (userData.role === 'ADMIN') roleName = 'ADMIN_ROLE';
+        if (userData.role === 'SUPER_ADMIN') roleName = 'SUPER_ADMIN_ROLE';
+        if (userData.role === 'CAJERO') roleName = 'CAJERO_ROLE';
+        
+        await updateUserRole(authId, roleName);
+      }
+
       toast.success('Usuario actualizado exitosamente');
-      setShowDetailModal(false);
-      await loadItems();
+      setShowEditModal(false);
+      await loadItems(statusFilter);
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Error al actualizar usuario');
     }
@@ -77,7 +141,7 @@ export const Users = () => {
     try {
       await changeUserStatus(userId, isActive);
       toast.success(isActive ? 'Usuario activado' : 'Usuario desactivado');
-      await loadItems();
+      await loadItems(statusFilter);
     } catch {
       toast.error('Error al cambiar estado del usuario');
     }
@@ -128,7 +192,21 @@ export const Users = () => {
         >
           <option value="">Todos los roles</option>
           <option value="ADMIN">ADMIN</option>
+          <option value="CAJERO">CAJERO</option>
           <option value="USER">USER</option>
+        </select>
+        <select
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            resetPage();
+          }}
+          className="w-full px-3 py-2 rounded-lg focus:outline-none"
+          style={{ backgroundColor: dm ? '#0B1C2C' : '#F4F7FB', color: dm ? 'var(--color-dark-text-primary)' : 'var(--color-text-primary)', border: `1px solid ${dm ? 'var(--color-dark-border)' : 'var(--color-border)'}` }}
+        >
+          <option value="all">Todos los estados</option>
+          <option value="true">Activos</option>
+          <option value="false">Inactivos</option>
         </select>
       </SearchFilter>
 
@@ -191,13 +269,25 @@ export const Users = () => {
                           setSelectedUser(user);
                           setShowDetailModal(true);
                         }}
-                        variant="blue"
+                        variant="gray"
                       />
-                      <ActionButton
-                        label={user?.isActive ? 'Desactivar' : 'Activar'}
-                        onClick={() => handleChangeStatus(user._id, !user.isActive)}
-                        variant={user?.isActive ? 'danger' : 'success'}
-                      />
+                      {canEdit(user) && (
+                        <>
+                          <ActionButton
+                            label="Editar"
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setShowEditModal(true);
+                            }}
+                            variant="blue"
+                          />
+                          <ActionButton
+                            label={user?.isActive ? 'Desactivar' : 'Activar'}
+                            onClick={() => handleChangeStatus(user._id, !user.isActive)}
+                            variant={user?.isActive ? 'danger' : 'success'}
+                          />
+                        </>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -226,17 +316,28 @@ export const Users = () => {
         darkMode={dm}
       />
       {selectedUser && (
-        <UserDetailModal
-          isOpen={showDetailModal}
-          user={selectedUser}
-          onClose={() => {
-            setShowDetailModal(false);
-            setSelectedUser(null);
-          }}
-          onUpdate={handleUpdateUser}
-          darkMode={dm}
-        />
-      )}
-    </div>
+                        <UserDetailModal
+                          isOpen={showDetailModal}
+                          user={selectedUser}
+                          onClose={() => {
+                            setShowDetailModal(false);
+                            setSelectedUser(null);
+                          }}
+                          darkMode={dm}
+                        />
+                      )}
+                      {selectedUser && (
+                        <EditUserModal
+                          isOpen={showEditModal}
+                          user={selectedUser}
+                          onClose={() => {
+                            setShowEditModal(false);
+                            setSelectedUser(null);
+                          }}
+                          onUpdate={handleUpdateUser}
+                          darkMode={dm}
+                        />
+                      )}
+                    </div>
   );
 };
