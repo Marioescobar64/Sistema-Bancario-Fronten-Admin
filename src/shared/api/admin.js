@@ -33,6 +33,11 @@ export const changeUserStatus = async (id) => {
     return data;
 };
 
+export const verifyUserManually = async (id) => {
+    const { data } = await axiosAdmin.patch(`/users/${id}/verify-manually`);
+    return data;
+};
+
 // ================= ACCOUNTS =================
 export const getAccounts = async (page = 1, limit = 10, search = '') => {
     const { data } = await axiosAdmin.get("/accounts", {

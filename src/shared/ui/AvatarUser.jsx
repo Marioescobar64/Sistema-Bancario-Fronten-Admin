@@ -55,21 +55,21 @@ export const AvatarUser = () => {
       />
 
       {open && (
-        <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg animate-fadeIn z-50">
-          <div className="px-4 py-3 border-b">
-            <p className="font-semibold text-gray-800">
+        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#112B3C] border border-gray-200 dark:border-[#1B4F72] rounded-lg shadow-lg animate-fadeIn z-50">
+          <div className="px-4 py-3 border-b dark:border-[#1B4F72]">
+            <p className="font-semibold text-gray-800 dark:text-[#EAF2F8]">
               {user?.username}
             </p>
-            <p className="text-sm text-gray-500 truncate">
+            <p className="text-sm text-gray-500 dark:text-[#A9CCE3] truncate">
               {user?.email}
             </p>
           </div>
 
-          <ul className="p-2 text-sm text-gray-700 font-medium">
+          <ul className="p-2 text-sm text-gray-700 dark:text-[#EAF2F8] font-medium">
             <li>
               <Link
                 to="/dashboard/accounts"
-                className="block w-full p-2 rounded-md hover:bg-gray-100"
+                className="block w-full p-2 rounded-md hover:bg-gray-100 dark:hover:bg-[#1B4F72]"
               >
                 Dashboard
               </Link>
@@ -78,7 +78,7 @@ export const AvatarUser = () => {
             <li>
               <Link
                 to="/dashboard/users"
-                className="block w-full p-2 rounded-md hover:bg-gray-100"
+                className="block w-full p-2 rounded-md hover:bg-gray-100 dark:hover:bg-[#1B4F72]"
               >
                 Usuarios
               </Link>
@@ -87,7 +87,7 @@ export const AvatarUser = () => {
             <li>
               <button
                 onClick={handleLogout}
-                className="block w-full text-left p-2 rounded-md hover:bg-red-100 text-red-600"
+                className="block w-full text-left p-2 rounded-md hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400"
               >
                 Cerrar sesión
               </button>

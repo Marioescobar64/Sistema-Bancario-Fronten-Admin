@@ -6,7 +6,8 @@ import {
   createUser,
   updateUser,
   changeUserStatus,
-  preValidateUser
+  preValidateUser,
+  verifyUserManually
 } from '../../../shared/api/admin';
 
 import { register, updateUserRole } from '../../../shared/api/auth';
@@ -144,6 +145,21 @@ export const Users = () => {
       await loadItems(statusFilter);
     } catch {
       toast.error('Error al cambiar estado del usuario');
+    }
+  };
+
+  const handleVerifyUserManually = async (userId) => {
+    try {
+      await verifyUserManually(userId);
+      toast.success('Usuario verificado y activado exitosamente');
+      await loadItems(statusFilter);
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || error?.message || 'Error al verificar el usuario';
+      if (errorMsg.includes('ya está verificado')) {
+        toast.success('La cuenta ya se encuentra verificada.');
+      } else {
+        toast.error(errorMsg);
+      }
     }
   };
 
@@ -285,6 +301,11 @@ export const Users = () => {
                             label={user?.isActive ? 'Desactivar' : 'Activar'}
                             onClick={() => handleChangeStatus(user._id, !user.isActive)}
                             variant={user?.isActive ? 'danger' : 'success'}
+                          />
+                          <ActionButton
+                            label="Verificar"
+                            onClick={() => handleVerifyUserManually(user._id)}
+                            variant="warning"
                           />
                         </>
                       )}

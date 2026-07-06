@@ -129,17 +129,17 @@ export const Transfers = () => {
                       : dm ? 'rgba(31,78,121,0.05)' : 'rgba(59,130,246,0.02)'}
                   >
                     <td className="px-6 py-4 md:px-4 md:py-3 font-medium" style={getPrimaryTextStyle(dm)}>
-                      {getAccountNumber(transfer.fromAccount?._id || transfer.fromAccount)}
+                      {transfer.fromAccount?.accountNumber || getAccountNumber(transfer.fromAccount)}
                     </td>
                     <td className="px-6 py-4 md:px-4 md:py-3" style={getSecondaryTextStyle(dm)}>
-                      {getAccountNumber(transfer.toAccount?._id || transfer.toAccount)}
+                      {transfer.toAccount?.accountNumber || getAccountNumber(transfer.toAccount)}
                     </td>
                     <td className="px-6 py-4 md:px-4 md:py-3 text-right font-medium" style={getPrimaryTextStyle(dm)}>
                       <div className="flex flex-col items-end">
-                        <span>{getAccountCurrency(transfer.fromAccount?._id || transfer.fromAccount)} {transfer.amount?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</span>
+                        <span>{(transfer.fromAccount?.currency || getAccountCurrency(transfer.fromAccount?._id || transfer.fromAccount)) === 'USD' ? '$' : 'Q'} {transfer.amount?.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</span>
                         {transfer.convertedAmount && transfer.convertedAmount !== transfer.amount && (
                           <span className="text-xs text-amber-500 italic font-normal mt-0.5">
-                            (Conv: {getAccountCurrency(transfer.toAccount?._id || transfer.toAccount)} {transfer.convertedAmount?.toLocaleString('es-ES', { minimumFractionDigits: 2 })})
+                            (Conv: {(transfer.toAccount?.currency || getAccountCurrency(transfer.toAccount?._id || transfer.toAccount)) === 'USD' ? '$' : 'Q'} {transfer.convertedAmount?.toLocaleString('es-ES', { minimumFractionDigits: 2 })})
                           </span>
                         )}
                       </div>
